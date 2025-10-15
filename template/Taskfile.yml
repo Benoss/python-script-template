@@ -1,0 +1,25 @@
+version: "3"
+
+tasks:
+  default:
+    cmds:
+      - echo "This is the default task"
+    desc: "The default task that runs when no task is specified"
+
+  dev:
+    deps:
+      - install_deps
+    cmds:
+      - task: lint
+
+  install_deps:
+    cmds:
+      - uv pip install -r requirements_dev.txt --upgrade
+    desc: "Install project dependencies"
+
+  lint:
+    cmds:
+      - uv run ruff check --fix .
+      - uv run ruff format .
+      - uv run ty check .
+    desc: "Lint the project"

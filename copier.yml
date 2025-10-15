@@ -1,0 +1,33 @@
+# questions
+project_name:
+  type: str
+  help: What is your project name?
+
+project_slug_dashes:
+  type: str
+  help: What is your project slug with dashes?
+  default: "{{ project_name | lower | regex_replace('[^a-z0-9]+', '-') | regex_replace('^-+|-+$', '') }}"
+
+project_slug_underscore:
+  type: str
+  help: What is your project slug with underscores?
+  default: "{{ project_slug_dashes | replace('-', '_') }}"
+
+_preserve_symlinks: True
+# Root of the template
+_subdirectory: template
+
+_message_after_copy: |
+  Your project "{{ project_name }}" has been created successfully!
+
+  Next steps:
+
+  1. Change directory to the project root and setup git and install dependencies:
+     ```bash
+    cd {{ _copier_conf.dst_path }}
+    git init
+    uv venv
+    uv pip install -r requirements_dev.txt
+    git add .
+    git commit -m "Initial commit"
+    ```

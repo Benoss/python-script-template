@@ -1,0 +1,71 @@
+[project]
+name = "{{ project_slug_dashes }}"
+version = "0.1.0"
+description = "{{ project_name }}"
+readme = "README.md"
+requires-python = ">=3.12"
+
+
+[tool.ruff]
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+# Same as Black.
+line-length = 120
+indent-width = 4
+
+# Assume Python 3.12
+target-version = "py313"
+
+extend-include = ["*.ipynb"]
+
+
+# --------------------------------------------------------------------------------------------------
+[tool.ruff.lint]
+select = ["ALL"]
+
+ignore = [
+    # only relevant if you run a script with `python -0`,
+    # which seems unlikely for any of the scripts in this repo
+    "B011",
+    # Leave it to the formatter to split long lines and
+    # the judgement of all of us.
+    "E501",
+    "D100",  # Missing docstring in public module
+    "D211",  # Multi-line docstring summary should start at the second line
+    "D213",  # multi-line-summary-second-line
+    "COM812", # Use `from module import *` instead of `import module`
+    "D203",  # 1 blank line required before class docstring
+    "D104", # Missing docstring in public package
+    "TRY003", # Checks for long exception messages that are not defined in the exception class itself.
+    "EM101", # Checks for the use of string literals in exception constructors.
+]
+
+
+# --------------------------------------------------------------------------------------------------
+# Specific ruff formatting rules
+[tool.ruff.format]
+# Like Black, use double quotes for strings.
+quote-style = "double"

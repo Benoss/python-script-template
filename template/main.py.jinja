@@ -1,0 +1,13 @@
+from dotenv import load_dotenv
+from loguru import logger
+
+load_dotenv()
+
+
+def main() -> None:
+    """Start the {{ project_name }} application."""
+    logger.info("Starting Script")
+
+
+if __name__ in {"__main__", "__mp_main__"}:
+    main()
