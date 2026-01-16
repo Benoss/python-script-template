@@ -12,7 +12,7 @@ Code quality is enforced using [Ruff](https://docs.astral.sh/ruff/) for linting 
 - Avoid apologizing or making conciliatory statements.
 - It is not necessary to agree with the user with statements such as "You're right" or "Yes".
 - Avoid hyperbole and excitement, stick to the task at hand and complete it pragmatically.
-- Avoid words like seamless,captivating
+- Avoid words like seamless, captivating
 
 ## Best Practices
 
@@ -21,17 +21,25 @@ Code quality is enforced using [Ruff](https://docs.astral.sh/ruff/) for linting 
 - **Always run Ruff and Ty before committing code.**
 - Follow [PEP8](https://peps.python.org/pep-0008/) style guidelines.
 - Use type hints everywhere.
-- Keep imports organized and unused imports removed (Ruff will check this).
+- Keep imports organized and sorted (stdlib, third-party, local) unused imports are removed (Ruff will check this).
 - Prefer f-strings for string formatting.
 - `open()` should be replaced by pathlib `Path.open()`
 - use logguru.logger instead of print or logging.
 - use dotenv for environment variables in a .env file
 - First line of docstring should be in imperative mood
-- avoid having more than 5 params to functions, use a dataclass or pydantic model if it makes sense
+- Avoid having more than 5 params to functions, use a dataclass or pydantic model if it makes sense
+- If in need of a http client prefer httpx over requests
+- Always ask first before adding 3rd party libraries and provide choices if there are multiple candidates
+- Prefer small, composable functions over large monolithic scripts. But do not create too many functions
+
 
 ### 2. Project Structure
 
-- Keep env variables in local .env file
+- Keep env variables in local .env file (ignored by git), secrets should NEVER be hardcoded in the python files
+- Output files from scripts should be by default in tmp/ folder at the root of the project
+- Do not log credentials or full payloads with sensitive data.
+- Fixtures should be kept into a fixtures/ folder at the root of the project
+
 
 ### 3. Testing
 
@@ -48,13 +56,14 @@ Code quality is enforced using [Ruff](https://docs.astral.sh/ruff/) for linting 
 
 ### 5. Documentation
 
-- Document all public functions and classes with docstrings.
+- Document all public functions and classes with docstrings. Keep them short on to the point
+- Write comments as full sentences ending with a period. 
+- Only add comments when it adds value for understanding
 - Maintain a `README.md` with setup and usage instructions.
 
 ## Linting Commands
 
-```sh
-uv run ruff check --fix .
-uv run ruff format .
-uv run ty check .
-```
+- uv run ruff check --fix .
+- uv run ruff format .
+- uv run ty check .
+
