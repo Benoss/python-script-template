@@ -2,6 +2,10 @@
   "recommendations": [
     "ms-python.python",
     "charliermarsh.ruff",
-    "astral-sh.ty"
+    "astral-sh.ty"{% if project_type == "django" %},
+    "batisteo.vscode-django",
+    "bradlc.vscode-tailwindcss",
+    "formulahendry.auto-rename-tag",
+    "ryanluker.vscode-coverage-gutters"{% endif %}
   ]
 }

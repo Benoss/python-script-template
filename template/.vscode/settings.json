@@ -1,7 +1,7 @@
 {
   // Python interpreter
   "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
-  "python.terminal.activateEnvInSelectedTerminal": true,
+  
   // Use Ty for type checking, not Pylance
   "python.analysis.typeCheckingMode": "off",
   

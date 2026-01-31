@@ -2,10 +2,14 @@
 
 ## Overview
 
+{% if project_type == "script" %}
 This project is a modern Python application
+{% elif project_type == "django" %}
+This is a Django web application built with modern tooling and best practices.
+{% endif %}
 Code quality is enforced using [Ruff](https://docs.astral.sh/ruff/) for linting and formating and [Ty](https://github.com/astral-sh/ruff/tree/main/crates/ty) for type checking.
 
-**Editor Setup**: VS Code is configured to use Ty's language server for real-time type checking (not Pylance). Type errors will appear as you type, matching exactly what `task lint` checks in CI.
+**Editor Setup**: VS Code is configured to use Ty's language server for real-time type checking (not Pylance). Type errors will appear as you type, matching exactly what `mise run lint` checks in CI.
 
 ## General Tone
 
@@ -36,102 +40,149 @@ Code quality is enforced using [Ruff](https://docs.astral.sh/ruff/) for linting 
 
 ### 2. Project Structure
 
-**Directory Layout:**
-- **`tmp/`** - Output files from scripts should be placed here by default. This directory is gitignored for temporary/generated content.
-- **`fixtures/`** - Test fixtures and sample data files should be kept here for consistency.
-- **`tests/`** - All test files using pytest should be organized in this directory.
-- **`.env`** - Environment variables are stored here (gitignored). Never hardcode secrets in Python files.
-- **`.vscode/`** - VS Code workspace settings configure the Ty language server for type checking (replaces Pylance).
-
-**Important Notes:**
-- Keep env variables in local `.env` file (ignored by git). Secrets should NEVER be hardcoded in Python files.
+{% if project_type == "script" %}
+- Keep env variables in local .env file (ignored by git), secrets should NEVER be hardcoded in the python files
+- Output files from scripts should be by default in tmp/ folder at the root of the project
 - Do not log credentials or full payloads with sensitive data.
-
-**Dependency Management Enforcement:**
-
-This project enforces the use of `uv` for package management. Standard `pip` and `pip3` commands are blocked through:
-1. Wrapper scripts at `.venv/bin/pip` and `.venv/bin/pip3` that display error messages
-2. A `.venv/pip.conf` file that breaks pip installs by pointing to a non-existent index
-
-**Why Block pip?**
-- **Consistency**: Ensures all developers use the same package manager (uv)
-- **Lock file integrity**: Prevents accidental modifications outside of uv's lock file management
-- **Speed**: uv is significantly faster than pip
-- **Reliability**: Avoids dependency resolution conflicts between pip and uv
-
-**If you accidentally try to use pip:**
-You'll see: `Error: Standard 'pip' usage is prohibited in this project.`
-
-**Instead, use these uv commands:**
-- Add a package: `uv add <package-name>`
-- Remove a package: `uv remove <package-name>`
-- Sync dependencies: `uv sync` or `uv sync --extra dev`
-- Add dev dependency: `uv add --dev <package-name>`
-
-The pip blocking is set up automatically when running `task setup` or `task init`.
+- Fixtures should be kept into a fixtures/ folder at the root of the project
+{% elif project_type == "django" %}
+- **Apps Organization**: All Django apps MUST be placed in the `{{ project_slug_underscore }}/apps/` directory
+  - Example: `{{ project_slug_underscore }}/apps/core/`, `{{ project_slug_underscore }}/apps/users/`
+  - Each app should have a clear, single responsibility
+  - Use `python manage.py startapp app_name {{ project_slug_underscore }}/apps/app_name` to create new apps
+- **Settings Split**: Use environment-specific settings files in `{{ project_slug_underscore }}/settings/`
+  - `base.py` - Shared settings
+  - `local.py` - Development (default)
+  - `staging.py` - Staging environment
+  - `prod.py` - Production with security hardening
+- **Environment Variables**: Store in `.env` file, load with django-environ
+  - Never hardcode secrets (SECRET_KEY, passwords, API keys)
+  - Use `env()` helper from settings to read variables
+- **Static Files**: Place custom CSS/JS in `static/` directory
+  - Tailwind input: `static/css/input.css` (includes @import and @theme config)
+  - Compiled output: `static/css/output.css` (auto-generated via bunx)
+  - No tailwind.config.js needed (Tailwind 4.1 uses CSS-based config)
+- **Templates**: Place shared templates in `templates/` directory
+  - Components go in `templates/components/` for django-cotton
+  - App-specific templates can go in app's `templates/` folder
+{% endif %}
 
 
 ### 3. Testing
-
-**General Testing Philosophy:**
+{% if project_type == "script" %}
 - Write tests for all business logic and models if asked to do so
-- Use [pytest](https://docs.pytest.org/) as the test runner
-- Place tests in `tests/` directory
-- Use fixtures from `tests/conftest.py` for common test setup
-- Keep tests focused and readable - prefer readability over DRY in test code
+- Use [pytest](https://docs.pytest.org/) as the test runner.
+- Place tests in a `tests/` directory.
+{% elif project_type == "django" %}
+- Use [pytest](https://docs.pytest.org/) with [pytest-django](https://pytest-django.readthedocs.io/)
+- Place project-wide tests in `tests/` directory
+- Place app-specific tests in each app's `tests.py` or `tests/` directory
+- Test views, models, forms, and management commands
+- Use factory-boy for creating test data
+- Run tests with: `task test` or `uv run pytest`
+{% endif %}
 
-**Running Tests:**
-- `task test` - Run all tests
-- `uv run pytest -k "pattern"` - Run tests matching pattern
-- `uv run pytest -m "not slow"` - Skip slow tests during development
-- `uv run pytest tests/test_specific.py::test_function` - Run specific test
-
-**Using Fixtures:**
-The project includes pre-configured fixtures in `tests/conftest.py`:
-- `tmp_output_dir` - Use for file operations without affecting actual tmp/ directory
-- `sample_json_data` - Use for testing JSON/API data processing
-- `sample_csv_file` - Use for testing CSV/data file processing
-- `fixtures_dir` - Access static test data from fixtures/ directory
-- `mock_api_response` - Use for testing error handling scenarios
-- `env_vars` - Pre-configured test environment variables (API keys, URLs, etc.)
-
-**For API Integration POCs:**
-- Use `env_vars` fixture to set test API credentials without modifying .env
-- Create mock responses in `fixtures/` directory for repeatable testing
-- Use `mock_api_response` fixture for testing error handling paths
-- When testing httpx clients, consider using respx or pytest-httpx for mocking
-- Example: Load `fixtures/sample_api_response.json` to test parsing logic
-
-**For Data Processing POCs:**
-- Use `sample_csv_file` fixture for testing data transformations
-- Use `tmp_output_dir` for writing processed results
-- Store reference datasets in `fixtures/` directory
-- Use parametrized tests (`@pytest.mark.parametrize`) for multiple input scenarios
-- Example: Test CSV parsing, filtering, aggregation with known sample data
-
-**Test Markers:**
-Use markers to categorize tests:
-- `@pytest.mark.slow` - For tests that take >1 second
-- `@pytest.mark.integration` - For tests that call external APIs
-- `@pytest.mark.unit` - For isolated unit tests
-- Configure additional markers in `[tool.pytest.ini_options]` in pyproject.toml
-
-**Best Practices:**
-- Test one thing per test function
-- Use descriptive test names: `test_<what>_<condition>_<expected>`
-- Use parametrize for testing multiple similar cases
-- Don't test implementation details, test behavior
-- For POCs, focus on critical paths and edge cases
-- Mock external dependencies (APIs, databases) to keep tests fast and reliable
 
 ### 4. Dependency Management
+{% if project_type == "script" %}
+- Use uv for managing packages via uv pip
+- Use a requirements.txt file for production dependencies.
+- Use a requirements_dev.txt file for development dependencies.
+- Use `pyproject.toml` for project metadata and linter configuration.
+{% elif project_type == "django" %}
+- **Package Manager**: Use UV exclusively (pip is blocked)
+  - Add packages: `uv add package-name`
+  - Add dev packages: `uv add --dev package-name`
+  - Sync dependencies: `task setup` or `uv sync --extra dev`
+- Dependencies are defined in `pyproject.toml`
+- Never use `pip install` directly
+{% endif %}
+{% if project_type == "django" %}
 
-- Use UV for managing dependencies via `uv sync`
-- All dependencies are defined in `pyproject.toml`:
-  - Production dependencies in `[project.dependencies]`
-  - Development dependencies in `[project.optional-dependencies] dev`
-- The `uv.lock` file is committed to git for reproducible environments
-- Use `task install` to sync dependencies or `uv sync --extra dev` directly
+## Django-Specific Best Practices
+
+### 1. Models & Database
+
+- **Always update the `init_data` management command when adding new models**
+  - After creating a model, add seed data to `{{ project_slug_underscore }}/apps/core/management/commands/init_data.py`
+  - This ensures a complete testing experience for local development
+  - Create realistic sample data that demonstrates the feature
+- Run migrations after model changes:
+  - `task makemigrations` - Create migration files
+  - `task migrate` - Apply migrations
+- Use `loguru.logger` for logging, not `print()` or Django's logging
+- Add `__str__` methods to all models for better admin display
+- Use Django's `get_object_or_404` and `get_list_or_404` for views
+
+### 2. Views & URLs
+
+- Prefer Class-Based Views (CBVs) for standard CRUD operations
+- Use Function-Based Views (FBVs) for complex logic or simple endpoints
+- Always name URL patterns: `path('', HomeView.as_view(), name='home')`
+- Use app namespaces: `app_name = 'core'` in `urls.py`
+- Reverse URLs in templates: `{% url 'core:home' %}`
+
+### 3. Templates & Frontend
+
+- **django-cotton**: Use for reusable components
+  - Create components in `templates/components/`
+  - Example: `<c-button>Click me</c-button>`
+  - Pass props: `<c-card title="Hello" />` 
+  - Use slots for content: `<c-slot />` or named slots
+- **Tailwind CSS 4.1**: Use utility classes for styling
+  - Configuration via CSS in `static/css/input.css` (no tailwind.config.js needed)
+  - Uses bunx (no Node.js/npm dependency required)
+  - Run `task tailwind-watch` during development (auto-runs bunx)
+  - Build for production: `task tailwind-build`
+  - Follow Tailwind conventions (mobile-first, utility classes)
+  - Extract repeated patterns into django-cotton components
+- Keep templates DRY - use `{% extends "base.html" %}` and blocks
+- Use template tags: `{% load static %}`, `{% load cotton %}`
+
+### 4. APIs (When Needed)
+
+- **Prefer Django Ninja over Django REST Framework**
+  - More modern, faster, and simpler than DRF
+  - Automatic OpenAPI/Swagger documentation
+  - Better type hints support
+  - Install: `uv add django-ninja`
+  - Mention this preference but don't install by default
+- If using DRF, follow their best practices for serializers and viewsets
+
+### 5. Admin Panel
+
+- Register all models in `admin.py`
+- Customize admin display with `list_display`, `list_filter`, `search_fields`
+- Use `@admin.register(Model)` decorator for cleaner code
+- Create custom admin actions for bulk operations
+- Test admin interface as part of QA
+
+### 6. Management Commands
+
+- **Always seed data for new features**
+  - When adding a feature with new models, update `init_data` command
+  - Provide realistic, useful test data
+  - Use `get_or_create()` to make command idempotent
+  - Log actions with loguru: `logger.info("Created X")`
+- Test management commands: `task init-data`
+- Follow Django's command structure with `handle()` method
+
+### 7. Security
+
+- Never commit `.env` file or secrets
+- Use environment variables for sensitive data
+- Keep `DEBUG=False` in production
+- Use HTTPS in production (enforced in `prod.py` settings)
+- Validate all user input
+- Use Django's built-in protection: CSRF, XSS, SQL injection
+
+### 8. Performance
+
+- Use `select_related()` and `prefetch_related()` to avoid N+1 queries
+- Add database indexes for frequently queried fields
+- Use Django's caching framework for expensive operations
+- Monitor query count in development with Django Debug Toolbar (optional)
+{% endif %}
 
 ### 5. Documentation
 
@@ -142,11 +193,25 @@ Use markers to categorize tests:
 
 ## Linting Commands
 
-Run these commands via Task:
-- `task lint` - Run all linting and formatting
-- `task dev-watch` - Run ruff in watch mode for continuous linting
-- Or run individually:
-  - `uv run ruff check --fix .`
-  - `uv run ruff format .`
-  - `uv run ty check .`
+{% if project_type == "script" %}
+Run these commands via mise:
+- mise run lint
+- Or individually:
+  - uv run ruff check --fix .
+  - uv run ruff format .
+  - uv run ty check .
+{% elif project_type == "django" %}
+Run linting with Task:
+- `task lint` - Run all linting tools (Ruff + Ty)
+- Or individually:
+  - `uv run ruff check --fix .` - Fix linting issues
+  - `uv run ruff format .` - Format code
+  - `uv run ty check .` - Type checking
+
+Other useful commands:
+- `task test` - Run all tests
+- `task runserver` - Start development server
+- `task migrate` - Apply database migrations
+- `task init-data` - Seed database with test data
+{% endif %}
 

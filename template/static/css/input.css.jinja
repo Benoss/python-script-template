@@ -1,0 +1,17 @@
+{% if project_type == "django" %}
+@import "tailwindcss";
+
+@theme {
+  /* Configure content sources for Tailwind 4.1 */
+  --source: "./templates/**/*.html";
+  --source: "./{{ project_slug_underscore }}/**/*.html";
+  --source: "./{{ project_slug_underscore }}/**/*.py";
+}
+
+/* Custom styles */
+@layer components {
+  .container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+}
+{% endif %}

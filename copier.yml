@@ -14,17 +14,36 @@ project_slug_underscore:
   help: What is your project slug with underscores?
   default: "{{ project_slug_dashes | replace('-', '_') }}"
 
+project_type:
+  type: str
+  help: What type of project do you want to create?
+  default: script
+  choices:
+    - script
+    - django
+
 _preserve_symlinks: True
 # Root of the template
 _subdirectory: template
 
+# Exclude files based on project type - exclude output filenames, not.jinja source names  
+_exclude:
+  - "{{ 'manage.py' if project_type == 'script' else '' }}"
+  - "{{ 'docker-compose.yml' if project_type == 'script' else '' }}"
+  - "{{ 'package.json' if project_type == 'script' else '' }}"
+  - "{{ 'tailwind.config.js' if project_type == 'script' else '' }}"
+  - "{{ project_slug_underscore if project_type == 'script' else '' }}"
+  - "{{ 'templates' if project_type == 'script' else '' }}"
+  - "{{ 'static' if project_type == 'script' else '' }}"
+  - "{{ 'main_' + project_slug_underscore + '.py' if project_type == 'django' else '' }}"
+
 _message_after_copy: |
-  Your project "{{ project_name }}" has been created successfully!
+  Your {{ project_type }} project "{{ project_name }}" has been created successfully!
 
   Platform Support: Linux, Mac, and WSL only
 
   Next steps:
-
+  {% if project_type == "script" %}
   1. Initialize the project (recommended):
      ```bash
     cd {{ _copier_conf.dst_path }} && task init
@@ -38,3 +57,26 @@ _message_after_copy: |
     git add .
     git commit -m "Initial commit"
     ```
+  {% elif project_type == "django" %}
+  1. Initialize the Django project:
+     ```bash
+    cd {{ _copier_conf.dst_path }}
+    git init
+    task setup  # Syncs dependencies and blocks pip usage
+    task db-up  # Start PostgreSQL in Podman
+    task migrate  # Apply database migrations
+    task init-data  # Create superuser and seed data
+    git add .
+    git commit -m "Initial commit"
+    ```
+
+  2. Start development:
+     ```bash
+    task tailwind-watch  # In one terminal (builds CSS with bunx)
+    task runserver  # In another terminal (starts Django)
+    ```
+
+  3. Access your project:
+     - Web: http://localhost:8000
+     - Admin: http://localhost:8000/admin (login with init-data credentials)
+  {% endif %}

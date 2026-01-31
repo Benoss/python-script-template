@@ -1,0 +1,69 @@
+{% if project_type == "django" %}
+"""
+Management command to initialize database with seed data.
+This command creates a superuser and can be extended to seed other data.
+"""
+from django.core.management.base import BaseCommand
+from django.contrib.auth import get_user_model
+from loguru import logger
+
+
+User = get_user_model()
+
+
+class Command(BaseCommand):
+    help = 'Initialize database with seed data (superuser and sample data)'
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--skip-superuser',
+            action='store_true',
+            help='Skip superuser creation',
+        )
+
+    def handle(self, *args, **options):
+        """Execute the command."""
+        logger.info("Starting database initialization...")
+        
+        # Create superuser
+        if not options['skip_superuser']:
+            self._create_superuser()
+        
+        # Add more seed data functions here as your project grows
+        # Example: self._create_sample_data()
+        
+        logger.success("Database initialization completed!")
+        self.stdout.write(self.style.SUCCESS('✓ Database initialized successfully'))
+
+    def _create_superuser(self):
+        """Create a superuser if it doesn't exist."""
+        username = 'admin'
+        email = 'admin@{{ project_slug_dashes }}.local'
+        password = 'admin'  # Change this in production!
+        
+        if User.objects.filter(username=username).exists():
+            logger.info(f"Superuser '{username}' already exists, skipping creation")
+            self.stdout.write(self.style.WARNING(f'⚠ Superuser "{username}" already exists'))
+        else:
+            User.objects.create_superuser(
+                username=username,
+                email=email,
+                password=password
+            )
+            logger.success(f"Superuser '{username}' created successfully")
+            self.stdout.write(self.style.SUCCESS(f'✓ Superuser "{username}" created'))
+            self.stdout.write(self.style.SUCCESS(f'  Email: {email}'))
+            self.stdout.write(self.style.SUCCESS(f'  Password: {password}'))
+            self.stdout.write(self.style.WARNING('  ⚠ Remember to change the password in production!'))
+    
+    # def _create_sample_data(self):
+    #     """
+    #     Create sample data for testing.
+    #     Add your model seed data here as your project grows.
+    #     """
+    #     logger.info("Creating sample data...")
+    #     # Example:
+    #     # from {{ project_slug_underscore }}.apps.core.models import MyModel
+    #     # MyModel.objects.get_or_create(name='Sample', defaults={'description': 'Sample data'})
+    #     self.stdout.write(self.style.SUCCESS('✓ Sample data created'))
+{% endif %}

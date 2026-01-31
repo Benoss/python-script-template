@@ -68,8 +68,64 @@ tasks:
     desc: Run tests with coverage report
     cmds:
       - uv run pytest --cov=. --cov-report=term-missing --cov-report=html
-
+{% if project_type == "script" %}
   run:
     desc: Run the main script
     cmds:
       - uv run python main_{{ project_slug_underscore }}.py
+{% elif project_type == "django" %}
+  runserver:
+    desc: Start Django development server
+    cmds:
+      - uv run python manage.py runserver
+
+  migrate:
+    desc: Apply database migrations
+    cmds:
+      - uv run python manage.py migrate
+
+  makemigrations:
+    desc: Create new database migrations
+    cmds:
+      - uv run python manage.py makemigrations
+
+  shell:
+    desc: Start Django shell
+    cmds:
+      - uv run python manage.py shell
+
+  createsuperuser:
+    desc: Create Django superuser
+    cmds:
+      - uv run python manage.py createsuperuser
+
+  init-data:
+    desc: Initialize database with seed data
+    cmds:
+      - uv run python manage.py init_data
+
+  db-up:
+    desc: Start PostgreSQL database in Podman
+    cmds:
+      - podman-compose up -d
+
+  db-down:
+    desc: Stop PostgreSQL database
+    cmds:
+      - podman-compose down
+
+  db-logs:
+    desc: View database logs
+    cmds:
+      - podman-compose logs -f db
+
+  tailwind-watch:
+    desc: Watch and compile Tailwind CSS for development
+    cmds:
+      - bunx @tailwindcss/cli@latest -i ./static/css/input.css -o ./static/css/output.css --watch
+
+  tailwind-build:
+    desc: Build Tailwind CSS for production
+    cmds:
+      - bunx @tailwindcss/cli@latest -i ./static/css/input.css -o ./static/css/output.css --minify
+{% endif %}

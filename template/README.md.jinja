@@ -1,116 +1,25 @@
+{% if project_type == "script" %}
 ### Quickstart for {{ project_name }}
 
-**Prerequisites:**
-- Install [go-task](https://taskfile.dev) if not already installed
-- Install [UV](https://docs.astral.sh/uv/) if not already installed
-- **Platform**: Linux, Mac, or WSL only (Windows native not supported)
+- Install [mise](https://mise.jdx.dev/getting-started.html)
+- Initialize git if not done yet
+  - `git init`
 
-**Initialize the project** (sets up git, installs dependencies, blocks pip usage, and makes initial commit):
-```bash
-task init
-```
+- Install Python, tools, and dependencies using mise
+  - `mise install`  # Installs Python and activates environment
+  - `mise run install_deps`  # Installs dev dependencies
 
-**Or manually:**
-```bash
-git init
-task setup  # Syncs dependencies and blocks pip
-git add .
-git commit -m "Initial commit"
-```
+- Lint the project using mise tasks
+  - `mise run dev`
 
-### Project Structure
-
-- **`tmp/`** - Directory for output files from scripts (gitignored)
-- **`fixtures/`** - Test fixtures and sample data files
-- **`tests/`** - Test files using pytest
-- **`.env`** - Environment variables (gitignored, never commit secrets)
-- **`.vscode/`** - VS Code settings for Ty language server integration
-
-### pip Usage is Blocked
-
-This project enforces `uv` for package management. If you try to use `pip` or `pip3`, you'll get an error message.
-
-**Use these commands instead:**
-- Add package: `uv add <package-name>`
-- Add dev package: `uv add --dev <package-name>`
-- Remove package: `uv remove <package-name>`
-- Sync dependencies: `uv sync` or `uv sync --extra dev`
-
-**Why?** Ensures consistency, maintains lock file integrity, and leverages uv's speed advantages.
-
-### Available Tasks
-
-- `task install` - Install/sync all dependencies including dev dependencies
-- `task lint` - Run all linting and formatting tools (ruff + ty)
-- `task dev` - Same as lint (one-shot)
-- `task dev-watch` - Run ruff in watch mode for continuous linting
-- `task run` - Run the main script
-- `task test` - Run all tests with pytest
-- `task test-watch` - Run tests in watch mode (re-runs on file changes)
-- `task test-cov` - Run tests with coverage report
-- `task run` - Run the main script
-
-### Testing
-
-The template includes pytest with example fixtures for common POC scenarios:
-
-**Run all tests:**
-```bash
-task test
-# or directly: uv run pytest
-```
-
-**Run specific tests:**
-```bash
-# Run tests in a specific file
-uv run pytest tests/test_example.py
-
-# Run a specific test function
-uv run pytest tests/test_example.py::test_json_data_structure
-
-# Run tests matching a pattern
-uv run pytest -k "json"
-```
-
-**Use test markers:**
-```bash
-# Skip slow tests during development
-uv run pytest -m "not slow"
-
-# Run only unit tests
-uv run pytest -m unit
-
-# Run only integration tests
-uv run pytest -m integration
-```
-
-**Available fixtures** (see [tests/conftest.py](tests/conftest.py)):
-- `tmp_output_dir` - Isolated temp directory for test outputs
-- `sample_json_data` - Mock JSON API response data
-- `sample_csv_file` - Temporary CSV file with test data
-- `fixtures_dir` - Path to fixtures/ directory
-- `mock_api_response` - Mock API error response
-- `env_vars` - Test environment variables
-
-**Test data files** in [fixtures/](fixtures/):
-- [sample_api_response.json](fixtures/sample_api_response.json) - Example API response payload
-- [sample_data.csv](fixtures/sample_data.csv) - Sample CSV dataset
-
-
-### The "Golden Rule" for uv.lock
-
-The `uv.lock` file ensures reproducible dependency installations across all environments. **Never manually edit this file.**
-
-If Git shows a conflict in `uv.lock`:
-1. Accept the "incoming" or "current" version of `pyproject.toml` (resolve conflicts there)
-2. Run `uv lock` to regenerate the lock file
-3. Commit the newly generated `uv.lock`
+- Run the project
+  - `mise exec -- python main_{{ project_slug_underscore }}.py`
 
 ### VS Code Setup
 
 The project includes VS Code configuration for optimal Python development:
 
-- **Interpreter**: Auto-detects `.venv/bin/python` created by UV
+- **Interpreter**: Auto-detects `.venv/bin/python` created by mise
 - **Type checking**: Uses [Ty LSP](https://github.com/astral-sh/ruff/tree/main/crates/ty) for real-time type checking
 - **Formatting/Linting**: Uses [Ruff](https://docs.astral.sh/ruff/) with auto-fix on save
 - **Extensions**: Recommended extensions will be suggested on first open
@@ -119,3 +28,252 @@ If the interpreter isn't detected automatically:
 1. Press `Cmd+Shift+P` (macOS) or `Ctrl+Shift+P` (Linux/Windows)
 2. Select "Python: Select Interpreter"
 3. Choose `.venv/bin/python`
+{% elif project_type == "django" %}
+# {{ project_name }}
+
+A Django project built with modern tooling and best practices.
+
+## Features
+
+- **Django 5.0+** - Latest Django with async support
+- **PostgreSQL** - Production-ready database via Podman
+- **django-cotton** - Component-based templates
+- **Tailwind CSS 4.1** - Modern CSS framework with CSS-based configuration
+- **bunx** - Run Tailwind without Node.js/npm dependencies
+- **UV** - Lightning-fast Python package manager
+- **pytest** - Modern testing with pytest-django
+- **Ruff & Ty** - Fast linting and type checking
+- **Task** - Simple task automation
+
+## Prerequisites
+
+1. **UV** - Python package manager
+   ```bash
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   ```
+
+2. **Task** - Task runner
+   ```bash
+   # Ubuntu/Debian
+   curl -1sLf 'https://dl.cloudsmith.io/public/task/task/setup.deb.sh' | sudo -E bash
+   sudo apt install task
+   ```
+
+3. **Podman** - Container runtime (Docker alternative)
+   ```bash
+   # Ubuntu/Debian
+   sudo apt install podman podman-compose
+   
+   # Fedora
+   sudo dnf install podman podman-compose
+   
+   # macOS
+   brew install podman podman-compose
+   ```
+
+4. **Bun** - For running Tailwind CSS (no Node.js needed)
+   ```bash
+   # Linux/macOS/WSL
+   curl -fsSL https://bun.sh/install | bash
+   
+   # Or via npm if you have it
+   npm install -g bun
+   ```
+
+## Quick Start
+
+1. **Setup project**
+   ```bash
+   cd {{ project_slug_dashes }}
+   task setup          # Install Python dependencies
+   ```
+
+2. **Start database**
+   ```bash
+   task db-up         # Start PostgreSQL in Podman
+   ```
+
+3. **Initialize database**
+   ```bash
+   task migrate       # Run migrations
+   task init-data     # Create superuser (admin/admin)
+   ```
+
+4. **Build CSS and run server**
+   ```bash
+   # Terminal 1: Watch and compile Tailwind CSS
+   task tailwind-watch
+   
+   # Terminal 2: Start Django development server
+   task runserver
+   ```
+
+5. **Access your project**
+   - Web: http://localhost:8000
+   - Admin: http://localhost:8000/admin
+   - Login: `admin` / `admin` (change in production!)
+
+## Available Tasks
+
+Run `task --list` to see all available tasks:
+
+### Development
+- `task runserver` - Start Django development server
+- `task shell` - Open Django shell
+- `task lint` - Run linting and formatting
+- `task test` - Run tests with pytest
+
+### Database
+- `task db-up` - Start PostgreSQL container
+- `task db-down` - Stop PostgreSQL container
+- `task db-logs` - View database logs
+- `task migrate` - Apply database migrations
+- `task makemigrations` - Create new migrations
+- `task init-data` - Seed database with initial data
+
+### Frontend
+- `task tailwind-watch` - Watch and compile Tailwind CSS
+- `task tailwind-build` - Build production CSS (minified)
+
+### Users
+- `task createsuperuser` - Create a new superuser
+
+## Project Structure
+
+```
+{{ project_slug_underscore }}/
+├── {{ project_slug_underscore }}/          # Main Django project
+│   ├── settings/                           # Settings split by environment
+│   │   ├── base.py                         # Shared settings
+│   │   ├── local.py                        # Development settings
+│   │   ├── staging.py                      # Staging settings
+│   │   └── prod.py                         # Production settings
+│   ├── apps/                               # Django apps
+│   │   └── core/                           # Core app
+│   │       ├── management/commands/        # Custom management commands
+│   │       │   └── init_data.py            # Seed data command
+│   │       ├── models.py                   # Database models
+│   │       ├── views.py                    # Views
+│   │       ├── urls.py                     # URL routing
+│   │       ├── admin.py                    # Admin configuration
+│   │       └── tests.py                    # Tests
+│   ├── urls.py                             # Root URL configuration
+│   ├── wsgi.py                             # WSGI entry point
+│   └── asgi.py                             # ASGI entry point
+├── templates/                              # Django templates
+│   ├── base.html                           # Base template
+│   └── home.html                           # Home page
+├── static/                                 # Static files
+│   └── css/                                # CSS files
+│       ├── input.css                       # Tailwind input
+│       └── output.css                      # Compiled CSS (generated)
+├── tests/                                  # Project-wide tests
+├── manage.py                               # Django management script
+├── pyproject.toml                          # Python dependencies
+├── Taskfile.yml                            # Task definitions
+├── tailwind.config.js                      # Tailwind configuration (legacy, not needed in v4.1)
+├── package.json                            # Project info (not used with bunx)
+└── docker-compose.yml                      # PostgreSQL container setup
+```
+
+## Development Workflow
+
+### Adding a New Feature
+
+1. **Create or update models** in `{{ project_slug_underscore }}/apps/core/models.py`
+2. **Create migrations**: `task makemigrations`
+3. **Apply migrations**: `task migrate`
+4. **Update init_data command** to seed test data
+5. **Add tests** in `tests.py`
+6. **Run tests**: `task test`
+
+### Using django-cotton Components
+
+Create reusable components in `templates/components/`:
+
+```html
+{# templates/components/button.html #}
+<button class="px-4 py-2 bg-blue-600 text-white rounded">
+    <c-slot />
+</button>
+```
+
+Use in templates:
+```html
+<c-button>Click me</c-button>
+```
+
+### Using Django Ninja for APIs (Optional)
+
+When building APIs, prefer Django Ninja over Django REST Framework:
+
+```bash
+uv add django-ninja
+```
+
+See AGENTS.md for AI assistant guidelines on using Django Ninja.
+
+## VS Code Setup
+
+The project includes VS Code configuration for optimal Django development:
+
+- **Interpreter**: Auto-detects `.venv/bin/python`
+- **Type checking**: Uses [Ty LSP](https://github.com/astral-sh/ruff/tree/main/crates/ty)
+- **Formatting/Linting**: Uses [Ruff](https://docs.astral.sh/ruff/) with auto-fix on save
+- **Extensions**: Django, Python, Ruff, and Ty extensions recommended
+
+If the interpreter isn't detected:
+1. Press `Cmd+Shift+P` (macOS) or `Ctrl+Shift+P` (Linux/Windows)
+2. Select "Python: Select Interpreter"
+3. Choose `.venv/bin/python`
+
+## Testing
+
+Run tests with pytest:
+
+```bash
+task test              # Run all tests
+task test-watch        # Run tests in watch mode
+task test-cov          # Run tests with coverage report
+```
+
+## Production Deployment
+
+1. **Environment variables**: Set production values in `.env` or environment
+   - `DEBUG=False`
+   - `SECRET_KEY=<random-secret-key>`
+   - `ALLOWED_HOSTS=yourdomain.com`
+   - `DATABASE_URL=postgresql://...`
+
+2. **Use production settings**:
+   ```bash
+   export DJANGO_SETTINGS_MODULE={{ project_slug_underscore }}.settings.prod
+   ```
+
+3. **Build static files**:
+   ```bash
+   task tailwind-build
+   python manage.py collectstatic --noinput
+   ```
+
+4. **Run with Gunicorn**:
+   ```bash
+   gunicorn {{ project_slug_underscore }}.wsgi:application --bind 0.0.0.0:8000
+   ```
+
+## Troubleshooting
+
+### Database connection errors
+- Ensure Podman is running: `podman ps`
+- Check database logs: `task db-logs`
+- Restart database: `task db-down && task db-up`
+
+### Tailwind CSS not updating
+- Ensure `task tailwind-watch` is running
+- Check for syntax errors in templates
+- Restart the watch task
+
+### Import errors
+- Ensure virtual environment is activated
+- Run `task setup` to sync dependencies
+{% endif %}

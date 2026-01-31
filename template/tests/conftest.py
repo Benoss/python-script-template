@@ -1,14 +1,22 @@
 """Pytest configuration and shared fixtures for testing.
-
+{% if project_type == "script" %}
 This module provides common fixtures for API integration and data processing POCs.
+{% elif project_type == "django" %}
+This module provides common fixtures for Django testing with pytest-django.
+{% endif %}
 """
 
 from pathlib import Path
 from typing import Any
 
 import pytest
+{% if project_type == "django" %}
+from django.contrib.auth import get_user_model
 
+User = get_user_model()
+{% endif %}
 
+{% if project_type == "script" %}
 @pytest.fixture
 def tmp_output_dir(tmp_path: Path) -> Path:
     """Provide an isolated temporary directory for test outputs.
@@ -127,3 +135,84 @@ def env_vars(monkeypatch: pytest.MonkeyPatch) -> dict[str, str]:
     for key, value in test_env.items():
         monkeypatch.setenv(key, value)
     return test_env
+{% elif project_type == "django" %}
+# Django-specific configuration
+pytest_plugins = ["pytest_django"]
+
+
+@pytest.fixture
+def test_user(db):
+    """Create a test user for authentication testing.
+
+    Use this fixture for testing views that require authentication.
+
+    Example:
+        def test_protected_view(client, test_user):
+            client.force_login(test_user)
+            response = client.get('/protected/')
+            assert response.status_code == 200
+
+    """
+    return User.objects.create_user(
+        username="testuser",
+        email="testuser@example.com",
+        password="testpass123"
+    )
+
+
+@pytest.fixture
+def admin_user(db):
+    """Create an admin user for testing admin functionality.
+
+    Use this fixture for testing admin-only views and permissions.
+
+    """
+    return User.objects.create_superuser(
+        username="admin",
+        email="admin@example.com",
+        password="adminpass123"
+    )
+
+
+@pytest.fixture
+def authenticated_client(client, test_user):
+    """Provide a Django test client with authenticated user.
+
+    Use this for testing views that require authentication without
+    manually logging in each time.
+
+    Example:
+        def test_dashboard(authenticated_client):
+            response = authenticated_client.get('/dashboard/')
+            assert response.status_code == 200
+
+    """
+    client.force_login(test_user)
+    return client
+
+
+@pytest.fixture
+def api_client():
+    """Provide a Django REST framework APIClient (if using DRF).
+
+    Use this for testing API endpoints.
+    Note: Requires djangorestframework to be installed.
+
+    """
+    from rest_framework.test import APIClient
+    return APIClient()
+
+
+@pytest.fixture
+def fixtures_dir() -> Path:
+    """Provide path to the fixtures directory for loading test data files.
+
+    Use this to access static fixture files.
+
+    Returns:
+        Path to the fixtures/ directory in the project root.
+
+    """
+    return Path(__file__).parent.parent / "fixtures"
+{% endif %}
+

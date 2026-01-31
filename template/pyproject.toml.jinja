@@ -5,8 +5,17 @@ description = "{{ project_name }}"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
+{% if project_type == "script" %}
     "loguru",
     "python-dotenv",
+{% elif project_type == "django" %}
+    "django>=5.0",
+    "psycopg[binary]",
+    "django-cotton",
+    "django-environ",
+    "gunicorn",
+    "loguru",
+{% endif %}
 ]
 
 [project.optional-dependencies]
@@ -16,6 +25,11 @@ dev = [
     "pytest-xdist",
     "ruff",
     "ty",
+{% if project_type == "django" %}
+    "pytest-django",
+    "django-extensions",
+    "factory-boy",
+{% endif %}
 ]
 
 
@@ -90,11 +104,20 @@ testpaths = ["tests"]
 addopts = [
     "-v",
     "--strict-markers",
+{% if project_type == "script" %}
     "--cov={{ project_slug_underscore }}",
+{% elif project_type == "django" %}
+    "--cov={{ project_slug_underscore }}",
+    "--reuse-db",
+{% endif %}
     "--cov-report=html",
     "--cov-report=term-missing",
     "--cov-report=xml",
 ]
+{% if project_type == "django" %}
+DJANGO_SETTINGS_MODULE = "{{ project_slug_underscore }}.settings.local"
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
+{% endif %}
 
 [tool.coverage.run]
 branch = true

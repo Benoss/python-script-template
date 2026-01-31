@@ -1,0 +1,19 @@
+{% if project_type == "django" %}
+import pytest
+from django.test import TestCase
+from django.urls import reverse
+
+
+class HomeViewTest(TestCase):
+    """Tests for the home view."""
+    
+    def test_home_page_status_code(self):
+        """Test that home page returns 200 status."""
+        response = self.client.get(reverse('core:home'))
+        self.assertEqual(response.status_code, 200)
+    
+    def test_home_page_uses_correct_template(self):
+        """Test that home page uses the correct template."""
+        response = self.client.get(reverse('core:home'))
+        self.assertTemplateUsed(response, 'home.html')
+{% endif %}

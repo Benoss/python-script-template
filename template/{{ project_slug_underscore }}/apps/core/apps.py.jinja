@@ -1,0 +1,9 @@
+{% if project_type == "django" %}
+from django.apps import AppConfig
+
+
+class CoreConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = '{{ project_slug_underscore }}.apps.core'
+    verbose_name = 'Core'
+{% endif %}

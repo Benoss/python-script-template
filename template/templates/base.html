@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ project_name|default:"My Project" }}{% endblock %}</title>
+    
+    {# Tailwind CSS #}
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50">
+    {# Navigation #}
+    <nav class="bg-white shadow-sm">
+        <div class="container py-4">
+            <div class="flex justify-between items-center">
+                <a href="{% url 'core:home' %}" class="text-2xl font-bold text-blue-600">
+                    {{ project_name|default:"My Project" }}
+                </a>
+                <div class="space-x-4">
+                    <a href="{% url 'admin:index' %}" class="text-gray-600 hover:text-blue-600">Admin</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    {# Messages #}
+    {% if messages %}
+        <div class="container mt-4">
+            {% for message in messages %}
+                <div class="p-4 mb-4 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-700{% elif message.tags == 'success' %}bg-green-100 text-green-700{% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-700{% else %}bg-blue-100 text-blue-700{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {# Main content #}
+    <main class="container py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    {# Footer #}
+    <footer class="bg-white border-t mt-12">
+        <div class="container py-6 text-center text-gray-600">
+            <p>&copy; {% now "Y" %} {{ project_name|default:"My Project" }}. Built with Django + Tailwind + django-cotton.</p>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

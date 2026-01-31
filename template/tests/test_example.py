@@ -1,3 +1,4 @@
+{% if project_type == "script" %}
 """Example tests demonstrating fixture usage and testing patterns.
 
 These tests show common patterns for API integration and data processing POCs.
@@ -117,3 +118,63 @@ def test_example_slow_operation(sample_json_data: dict[str, Any]) -> None:
     for _ in range(100):
         result.extend([user["name"] for user in sample_json_data["users"]])
     assert len(result) == 300
+{% elif project_type == "django" %}
+"""Example tests for Django project.
+
+These tests show common patterns for testing Django views, models, and functionality.
+"""
+
+import pytest
+from django.urls import reverse
+
+
+def test_home_page(client):
+    """Test that the home page loads successfully."""
+    response = client.get(reverse('core:home'))
+    assert response.status_code == 200
+    assert b'Welcome to {{ project_name }}' in response.content
+
+
+def test_admin_page_requires_login(client):
+    """Test that admin page redirects to login for unauthenticated users."""
+    response = client.get('/admin/')
+    assert response.status_code == 302  # Redirect to login
+
+
+def test_admin_page_accessible_for_admin(client, admin_user):
+    """Test that admin users can access the admin page."""
+    client.force_login(admin_user)
+    response = client.get('/admin/')
+    assert response.status_code == 200
+
+
+def test_authenticated_user_access(authenticated_client):
+    """Test that authenticated users can access the home page."""
+    response = authenticated_client.get(reverse('core:home'))
+    assert response.status_code == 200
+
+
+def test_user_creation(test_user):
+    """Test that test user is created correctly."""
+    assert test_user.username == "testuser"
+    assert test_user.email == "testuser@example.com"
+    assert test_user.check_password("testpass123")
+    assert not test_user.is_staff
+    assert not test_user.is_superuser
+
+
+def test_admin_user_creation(admin_user):
+    """Test that admin user is created correctly."""
+    assert admin_user.username == "admin"
+    assert admin_user.is_staff
+    assert admin_user.is_superuser
+
+
+@pytest.mark.django_db
+def test_fixtures_directory_exists(fixtures_dir):
+    """Test fixtures directory access."""
+    assert fixtures_dir.exists()
+    assert fixtures_dir.is_dir()
+    assert fixtures_dir.name == "fixtures"
+{% endif %}
+

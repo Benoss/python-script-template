@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Home - {{ project_name|default:"My Project" }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    {# Hero Section #}
+    <div class="text-center mb-12">
+        <h1 class="text-5xl font-bold text-gray-900 mb-4">
+            Welcome to {{ project_name|default:"Your Django Project" }}
+        </h1>
+        <p class="text-xl text-gray-600 mb-8">
+            A Django project built with modern tooling and best practices
+        </p>
+        <div class="flex justify-center gap-4">
+            <a href="{% url 'admin:index' %}" 
+               class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                Go to Admin
+            </a>
+            <a href="#features" 
+               class="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition">
+                Learn More
+            </a>
+        </div>
+    </div>
+
+    {# Features Section #}
+    <div id="features" class="grid md:grid-cols-2 gap-6 mt-12">
+        <div class="bg-white p-6 rounded-lg shadow-sm">
+            <h3 class="text-xl font-semibold mb-3 text-gray-900">🎨 Tailwind CSS</h3>
+            <p class="text-gray-600">
+                Utility-first CSS framework for rapid UI development with modern design patterns.
+            </p>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow-sm">
+            <h3 class="text-xl font-semibold mb-3 text-gray-900">🧩 django-cotton</h3>
+            <p class="text-gray-600">
+                Component-based template system for Django, making templates more maintainable.
+            </p>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow-sm">
+            <h3 class="text-xl font-semibold mb-3 text-gray-900">🐘 PostgreSQL</h3>
+            <p class="text-gray-600">
+                Powerful open-source database running in Podman for local development.
+            </p>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow-sm">
+            <h3 class="text-xl font-semibold mb-3 text-gray-900">🧪 pytest</h3>
+            <p class="text-gray-600">
+                Modern testing framework with pytest-django for comprehensive test coverage.
+            </p>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow-sm">
+            <h3 class="text-xl font-semibold mb-3 text-gray-900">⚡ UV Package Manager</h3>
+            <p class="text-gray-600">
+                Lightning-fast Python package installer and dependency manager.
+            </p>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow-sm">
+            <h3 class="text-xl font-semibold mb-3 text-gray-900">🔧 Task Automation</h3>
+            <p class="text-gray-600">
+                Go-task for running common development tasks like migrations and testing.
+            </p>
+        </div>
+    </div>
+
+    {# Quick Start #}
+    <div class="bg-blue-50 p-8 rounded-lg mt-12">
+        <h2 class="text-2xl font-bold mb-4 text-gray-900">Quick Start</h2>
+        <div class="space-y-2 text-gray-700">
+            <p>• <strong>Admin Panel:</strong> <a href="{% url 'admin:index' %}" class="text-blue-600 hover:underline">/admin/</a></p>
+            <p>• <strong>Default Credentials:</strong> admin / admin (change in production!)</p>
+            <p>• <strong>Add Models:</strong> Create models in your apps</p>
+            <p>• <strong>Seed Data:</strong> Run <code class="bg-white px-2 py-1 rounded">task init-data</code> after adding models</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
