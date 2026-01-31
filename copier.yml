@@ -2,6 +2,7 @@
 project_name:
   type: str
   help: What is your project name?
+  default: "{{ _copier_conf.dst_path | basename | replace('-', ' ') | replace('_', ' ') | title }}"
 
 project_slug_dashes:
   type: str
@@ -26,7 +27,7 @@ _message_after_copy: |
 
   1. Initialize the project (recommended):
      ```bash
-    cd {{ _copier_conf.dst_path }}
+    cd {{ _copier_conf.dst_path }} && task init
     task init
     ```
 
