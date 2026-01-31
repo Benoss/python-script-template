@@ -3,7 +3,17 @@ name = "{{ project_slug_dashes }}"
 version = "0.1.0"
 description = "{{ project_name }}"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.14"
+dependencies = [
+    "loguru",
+    "python-dotenv",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "ty",
+]
 
 
 [tool.ruff]
@@ -36,8 +46,8 @@ exclude = [
 line-length = 120
 indent-width = 4
 
-# Assume Python 3.12
-target-version = "py313"
+# Assume Python 3.14
+target-version = "py314"
 
 extend-include = ["*.ipynb"]
 

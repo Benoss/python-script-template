@@ -1,0 +1,66 @@
+version: '3'
+
+tasks:
+  setup:
+    desc: Setup environment and block pip usage
+    cmds:
+      - uv sync --extra dev
+      - |
+        cat <<'EOF' > .venv/bin/pip
+        #!/bin/bash
+        echo "Error: Standard 'pip' usage is prohibited in this project."
+        echo "Please use 'uv add <package>', 'uv remove <package>', or 'uv sync' instead."
+        exit 1
+        EOF
+      - |
+        cat <<'EOF' > .venv/bin/pip3
+        #!/bin/bash
+        echo "Error: Standard 'pip3' usage is prohibited in this project."
+        echo "Please use 'uv add <package>', 'uv remove <package>', or 'uv sync' instead."
+        exit 1
+        EOF
+      - chmod +x .venv/bin/pip
+      - chmod +x .venv/bin/pip3
+      - |
+        cat <<'EOF' > .venv/pip.conf
+        [global]
+        # This makes pip look for a non-existent index, effectively breaking installs
+        index-url = http://localhost:0/null
+        # Require virtualenv to prevent global installs
+        require-virtualenv = true
+        EOF
+
+  init:
+    desc: Initialize a new project with git and dependencies
+    cmds:
+      - git init
+      - task: setup
+      - git add .
+      - git commit -m "Initial commit"
+
+  install:
+    desc: Install all dependencies including dev dependencies
+    cmds:
+      - uv sync --extra dev
+
+  lint:
+    desc: Run all linting and formatting tools
+    cmds:
+      - uv run ruff check --fix .
+      - uv run ruff format .
+      - uv run ty check .
+
+  dev:
+    desc: Run one-shot linting (same as lint task)
+    cmds:
+      - task: lint
+
+  dev-watch:
+    desc: Run linting in watch mode (continuous)
+    cmds:
+      - uv run ruff check --watch .
+
+  run:
+    desc: Run the main script
+    cmds:
+      - uv run python main_{{ project_slug_underscore }}.py

@@ -20,14 +20,21 @@ _subdirectory: template
 _message_after_copy: |
   Your project "{{ project_name }}" has been created successfully!
 
+  Platform Support: Linux, Mac, and WSL only
+
   Next steps:
 
-  1. Change directory to the project root and setup git and install dependencies:
+  1. Initialize the project (recommended):
+     ```bash
+    cd {{ _copier_conf.dst_path }}
+    task init
+    ```
+
+  Or manually:
      ```bash
     cd {{ _copier_conf.dst_path }}
     git init
-    uv venv
-    uv pip install -r requirements_dev.txt
+    task setup  # Syncs dependencies and blocks pip usage
     git add .
     git commit -m "Initial commit"
     ```

@@ -1,13 +1,70 @@
 ### Quickstart for {{ project_name }}
 
-- Install [uv](https://docs.astral.sh/uv/getting-started/installation/)
-- Create virtual env and init git if not done yet. Install dev dependencies
-  - `uv venv`
-  - `git init`
-  - `uv pip install -r requirements_dev.txt`
+**Prerequisites:**
+- Install [go-task](https://taskfile.dev) if not already installed
+- Install [UV](https://docs.astral.sh/uv/) if not already installed
+- **Platform**: Linux, Mac, or WSL only (Windows native not supported)
 
-- Install requirements and lint the project using [Tasks](https://taskfile.dev)
-  - task dev
+**Initialize the project** (sets up git, installs dependencies, blocks pip usage, and makes initial commit):
+```bash
+task init
+```
 
-- Run the project
-  - `python main_{{ project_slug_underscore }}.py`
+**Or manually:**
+```bash
+git init
+task setup  # Syncs dependencies and blocks pip
+git add .
+git commit -m "Initial commit"
+```
+
+### Project Structure
+
+- **`tmp/`** - Directory for output files from scripts (gitignored)
+- **`fixtures/`** - Test fixtures and sample data files
+- **`tests/`** - Test files using pytest
+- **`.env`** - Environment variables (gitignored, never commit secrets)
+- **`.vscode/`** - VS Code settings for Ty language server integration
+
+### pip Usage is Blocked
+
+This project enforces `uv` for package management. If you try to use `pip` or `pip3`, you'll get an error message.
+
+**Use these commands instead:**
+- Add package: `uv add <package-name>`
+- Add dev package: `uv add --dev <package-name>`
+- Remove package: `uv remove <package-name>`
+- Sync dependencies: `uv sync` or `uv sync --extra dev`
+
+**Why?** Ensures consistency, maintains lock file integrity, and leverages uv's speed advantages.
+
+### Available Tasks
+
+- `task install` - Install/sync all dependencies including dev dependencies
+- `task lint` - Run all linting and formatting tools (ruff + ty)
+- `task dev` - Same as lint (one-shot)
+- `task dev-watch` - Run ruff in watch mode for continuous linting
+- `task run` - Run the main script
+
+### The "Golden Rule" for uv.lock
+
+The `uv.lock` file ensures reproducible dependency installations across all environments. **Never manually edit this file.**
+
+If Git shows a conflict in `uv.lock`:
+1. Accept the "incoming" or "current" version of `pyproject.toml` (resolve conflicts there)
+2. Run `uv lock` to regenerate the lock file
+3. Commit the newly generated `uv.lock`
+
+### VS Code Setup
+
+The project includes VS Code configuration for optimal Python development:
+
+- **Interpreter**: Auto-detects `.venv/bin/python` created by UV
+- **Type checking**: Uses [Ty LSP](https://github.com/astral-sh/ruff/tree/main/crates/ty) for real-time type checking
+- **Formatting/Linting**: Uses [Ruff](https://docs.astral.sh/ruff/) with auto-fix on save
+- **Extensions**: Recommended extensions will be suggested on first open
+
+If the interpreter isn't detected automatically:
+1. Press `Cmd+Shift+P` (macOS) or `Ctrl+Shift+P` (Linux/Windows)
+2. Select "Python: Select Interpreter"
+3. Choose `.venv/bin/python`

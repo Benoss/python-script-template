@@ -2,9 +2,10 @@
 
 ## Overview
 
-This project is a modern Python application built with
+This project is a modern Python application
+Code quality is enforced using [Ruff](https://docs.astral.sh/ruff/) for linting and formating and [Ty](https://github.com/astral-sh/ruff/tree/main/crates/ty) for type checking.
 
-Code quality is enforced using [Ruff](https://docs.astral.sh/ruff/) for linting and formating and [Ty](https://ty-cli.github.io/) for type checking.
+**Editor Setup**: VS Code is configured to use Ty's language server for real-time type checking (not Pylance). Type errors will appear as you type, matching exactly what `task lint` checks in CI.
 
 ## General Tone
 
@@ -35,10 +36,39 @@ Code quality is enforced using [Ruff](https://docs.astral.sh/ruff/) for linting 
 
 ### 2. Project Structure
 
-- Keep env variables in local .env file (ignored by git), secrets should NEVER be hardcoded in the python files
-- Output files from scripts should be by default in tmp/ folder at the root of the project
+**Directory Layout:**
+- **`tmp/`** - Output files from scripts should be placed here by default. This directory is gitignored for temporary/generated content.
+- **`fixtures/`** - Test fixtures and sample data files should be kept here for consistency.
+- **`tests/`** - All test files using pytest should be organized in this directory.
+- **`.env`** - Environment variables are stored here (gitignored). Never hardcode secrets in Python files.
+- **`.vscode/`** - VS Code workspace settings configure the Ty language server for type checking (replaces Pylance).
+
+**Important Notes:**
+- Keep env variables in local `.env` file (ignored by git). Secrets should NEVER be hardcoded in Python files.
 - Do not log credentials or full payloads with sensitive data.
-- Fixtures should be kept into a fixtures/ folder at the root of the project
+
+**Dependency Management Enforcement:**
+
+This project enforces the use of `uv` for package management. Standard `pip` and `pip3` commands are blocked through:
+1. Wrapper scripts at `.venv/bin/pip` and `.venv/bin/pip3` that display error messages
+2. A `.venv/pip.conf` file that breaks pip installs by pointing to a non-existent index
+
+**Why Block pip?**
+- **Consistency**: Ensures all developers use the same package manager (uv)
+- **Lock file integrity**: Prevents accidental modifications outside of uv's lock file management
+- **Speed**: uv is significantly faster than pip
+- **Reliability**: Avoids dependency resolution conflicts between pip and uv
+
+**If you accidentally try to use pip:**
+You'll see: `Error: Standard 'pip' usage is prohibited in this project.`
+
+**Instead, use these uv commands:**
+- Add a package: `uv add <package-name>`
+- Remove a package: `uv remove <package-name>`
+- Sync dependencies: `uv sync` or `uv sync --extra dev`
+- Add dev dependency: `uv add --dev <package-name>`
+
+The pip blocking is set up automatically when running `task setup` or `task init`.
 
 
 ### 3. Testing
@@ -49,10 +79,12 @@ Code quality is enforced using [Ruff](https://docs.astral.sh/ruff/) for linting 
 
 ### 4. Dependency Management
 
-- Use uv for managing packages via uv pip
-- Use a requirements.txt file for production dependencies.
-- Use a requirements_dev.txt file for development dependencies.
-- Use `pyproject.toml` for project metadata and linter configuration.
+- Use UV for managing dependencies via `uv sync`
+- All dependencies are defined in `pyproject.toml`:
+  - Production dependencies in `[project.dependencies]`
+  - Development dependencies in `[project.optional-dependencies] dev`
+- The `uv.lock` file is committed to git for reproducible environments
+- Use `task install` to sync dependencies or `uv sync --extra dev` directly
 
 ### 5. Documentation
 
@@ -63,7 +95,11 @@ Code quality is enforced using [Ruff](https://docs.astral.sh/ruff/) for linting 
 
 ## Linting Commands
 
-- uv run ruff check --fix .
-- uv run ruff format .
-- uv run ty check .
+Run these commands via Task:
+- `task lint` - Run all linting and formatting
+- `task dev-watch` - Run ruff in watch mode for continuous linting
+- Or run individually:
+  - `uv run ruff check --fix .`
+  - `uv run ruff format .`
+  - `uv run ty check .`
 

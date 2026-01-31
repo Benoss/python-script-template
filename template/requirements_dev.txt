@@ -1,5 +1,0 @@
--r requirements.txt
-ruff
-pyright
-ty
-go-task-bin
