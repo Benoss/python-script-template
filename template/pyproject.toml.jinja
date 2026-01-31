@@ -12,6 +12,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest",
+    "pytest-cov",
     "pytest-xdist",
     "ruff",
     "ty",
@@ -81,3 +82,31 @@ ignore = [
 [tool.ruff.format]
 # Like Black, use double quotes for strings.
 quote-style = "double"
+
+
+# --------------------------------------------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--cov={{ project_slug_underscore }}",
+    "--cov-report=html",
+    "--cov-report=term-missing",
+    "--cov-report=xml",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["{{ project_slug_underscore }}"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
