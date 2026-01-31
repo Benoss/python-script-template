@@ -12,13 +12,7 @@ tasks:
         echo "Please use 'uv add <package>', 'uv remove <package>', or 'uv sync' instead."
         exit 1
         EOF
-      - |
-        cat <<'EOF' > .venv/bin/pip3
-        #!/bin/bash
-        echo "Error: Standard 'pip3' usage is prohibited in this project."
-        echo "Please use 'uv add <package>', 'uv remove <package>', or 'uv sync' instead."
-        exit 1
-        EOF
+      - cp .venv/bin/pip .venv/bin/pip3
       - chmod +x .venv/bin/pip
       - chmod +x .venv/bin/pip3
       - |
