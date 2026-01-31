@@ -54,6 +54,21 @@ tasks:
     cmds:
       - uv run ruff check --watch .
 
+  test:
+    desc: Run all tests with pytest
+    cmds:
+      - uv run pytest
+
+  test-watch:
+    desc: Run tests in watch mode (requires pytest-xdist)
+    cmds:
+      - uv run pytest --looponfail
+
+  test-cov:
+    desc: Run tests with coverage report
+    cmds:
+      - uv run pytest --cov=. --cov-report=term-missing --cov-report=html
+
   run:
     desc: Run the main script
     cmds:

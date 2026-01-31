@@ -1,0 +1,119 @@
+"""Example tests demonstrating fixture usage and testing patterns.
+
+These tests show common patterns for API integration and data processing POCs.
+"""
+
+import json
+from pathlib import Path
+from typing import Any
+
+import pytest
+
+
+def test_json_data_structure(sample_json_data: dict[str, Any]) -> None:
+    """Test JSON data structure validation."""
+    assert "users" in sample_json_data
+    assert "total" in sample_json_data
+    assert len(sample_json_data["users"]) == 3
+    assert sample_json_data["total"] == 3
+
+
+def test_active_users_filtering(sample_json_data: dict[str, Any]) -> None:
+    """Test filtering active users from API response."""
+    active_users = [user for user in sample_json_data["users"] if user["active"]]
+    assert len(active_users) == 2
+    assert all(user["active"] for user in active_users)
+
+
+@pytest.mark.parametrize(
+    ("user_id", "expected_name"),
+    [
+        (1, "Alice Johnson"),
+        (2, "Bob Smith"),
+        (3, "Charlie Brown"),
+    ],
+)
+def test_user_lookup(sample_json_data: dict[str, Any], user_id: int, expected_name: str) -> None:
+    """Test user lookup by ID using parametrized tests."""
+    user = next((u for u in sample_json_data["users"] if u["id"] == user_id), None)
+    assert user is not None
+    assert user["name"] == expected_name
+
+
+def test_csv_file_reading(sample_csv_file: Path) -> None:
+    """Test CSV file operations using pathlib."""
+    assert sample_csv_file.exists()
+    content = sample_csv_file.read_text()
+    lines = content.strip().split("\n")
+    assert len(lines) == 5  # Header + 4 data rows
+    assert lines[0] == "id,product,price,quantity"
+
+
+def test_csv_data_parsing(sample_csv_file: Path) -> None:
+    """Test parsing CSV data and basic calculations."""
+    lines = sample_csv_file.read_text().strip().split("\n")
+    data_lines = lines[1:]  # Skip header
+
+    total_quantity = 0
+    for line in data_lines:
+        parts = line.split(",")
+        quantity = int(parts[3])
+        total_quantity += quantity
+
+    assert total_quantity == 375  # 100 + 50 + 25 + 200
+
+
+def test_output_file_creation(tmp_output_dir: Path, sample_json_data: dict[str, Any]) -> None:
+    """Test writing JSON data to output directory."""
+    output_file = tmp_output_dir / "processed_data.json"
+
+    # Process data: extract active users
+    active_users = [user for user in sample_json_data["users"] if user["active"]]
+    result = {"active_users": active_users, "count": len(active_users)}
+
+    # Write to file
+    output_file.write_text(json.dumps(result, indent=2))
+
+    # Verify
+    assert output_file.exists()
+    loaded_data = json.loads(output_file.read_text())
+    assert loaded_data["count"] == 2
+    assert len(loaded_data["active_users"]) == 2
+
+
+def test_error_response_structure(mock_api_response: dict[str, Any]) -> None:
+    """Test API error response handling."""
+    assert "error" in mock_api_response
+    error = mock_api_response["error"]
+    assert error["code"] == "RATE_LIMIT_EXCEEDED"
+    assert error["status"] == 429
+    assert "message" in error
+
+
+def test_env_vars_available(env_vars: dict[str, str]) -> None:
+    """Test environment variable setup for API testing."""
+    import os
+
+    assert os.getenv("API_KEY") == "test_api_key_12345"
+    assert os.getenv("API_BASE_URL") == "https://api.example.com"
+    assert os.getenv("DEBUG") == "true"
+
+
+def test_fixtures_directory_exists(fixtures_dir: Path) -> None:
+    """Test fixtures directory access."""
+    assert fixtures_dir.exists()
+    assert fixtures_dir.is_dir()
+    assert fixtures_dir.name == "fixtures"
+
+
+@pytest.mark.slow
+def test_example_slow_operation(sample_json_data: dict[str, Any]) -> None:
+    """Example of marking slow tests for selective execution.
+
+    Use: pytest -m "not slow" to skip slow tests during development.
+    """
+    # Simulate a slow operation
+    result = []
+    for _ in range(100):
+        result.extend([user["name"] for user in sample_json_data["users"]])
+    assert len(result) == 300

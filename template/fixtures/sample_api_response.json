@@ -1,0 +1,36 @@
+{
+  "status": "success",
+  "data": {
+    "id": "api-12345",
+    "timestamp": "2026-01-31T10:00:00Z",
+    "results": [
+      {
+        "id": 101,
+        "type": "transaction",
+        "amount": 150.00,
+        "currency": "USD",
+        "description": "Sample transaction 1"
+      },
+      {
+        "id": 102,
+        "type": "transaction",
+        "amount": 75.50,
+        "currency": "USD",
+        "description": "Sample transaction 2"
+      },
+      {
+        "id": 103,
+        "type": "refund",
+        "amount": -25.00,
+        "currency": "USD",
+        "description": "Refund for order #456"
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "per_page": 10,
+      "total": 3,
+      "total_pages": 1
+    }
+  }
+}

@@ -28,7 +28,6 @@ _message_after_copy: |
   1. Initialize the project (recommended):
      ```bash
     cd {{ _copier_conf.dst_path }} && task init
-    task init
     ```
 
   Or manually:

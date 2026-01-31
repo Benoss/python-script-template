@@ -1,0 +1,129 @@
+"""Pytest configuration and shared fixtures for testing.
+
+This module provides common fixtures for API integration and data processing POCs.
+"""
+
+from pathlib import Path
+from typing import Any
+
+import pytest
+
+
+@pytest.fixture
+def tmp_output_dir(tmp_path: Path) -> Path:
+    """Provide an isolated temporary directory for test outputs.
+
+    Use this fixture when tests need to write files without affecting the actual tmp/ directory.
+
+    Example:
+        def test_file_creation(tmp_output_dir):
+            output_file = tmp_output_dir / "result.json"
+            output_file.write_text('{"status": "success"}')
+            assert output_file.exists()
+
+    """
+    output_dir = tmp_path / "test_output"
+    output_dir.mkdir(exist_ok=True)
+    return output_dir
+
+
+@pytest.fixture
+def sample_json_data() -> dict[str, Any]:
+    """Provide sample JSON data mimicking a typical API response.
+
+    Use this for testing JSON parsing, data transformation, or API client logic.
+
+    Returns:
+        Dictionary with sample user data structure.
+
+    """
+    return {
+        "users": [
+            {"id": 1, "name": "Alice Johnson", "email": "alice@example.com", "active": True},
+            {"id": 2, "name": "Bob Smith", "email": "bob@example.com", "active": True},
+            {"id": 3, "name": "Charlie Brown", "email": "charlie@example.com", "active": False},
+        ],
+        "total": 3,
+        "page": 1,
+    }
+
+
+@pytest.fixture
+def sample_csv_file(tmp_path: Path) -> Path:
+    """Create a temporary CSV file with sample data.
+
+    Use this for testing CSV parsing, data processing pipelines, or file transformations.
+
+    Returns:
+        Path to a temporary CSV file with sample product data.
+
+    """
+    csv_content = """id,product,price,quantity
+1,Widget A,19.99,100
+2,Widget B,29.99,50
+3,Gadget C,49.99,25
+4,Tool D,9.99,200
+"""
+    csv_file = tmp_path / "sample_data.csv"
+    csv_file.write_text(csv_content)
+    return csv_file
+
+
+@pytest.fixture
+def fixtures_dir() -> Path:
+    """Provide path to the fixtures directory for loading test data files.
+
+    Use this to access static fixture files like JSON responses or sample datasets.
+
+    Returns:
+        Path to the fixtures/ directory in the project root.
+
+    """
+    return Path(__file__).parent.parent / "fixtures"
+
+
+@pytest.fixture
+def mock_api_response() -> dict[str, Any]:
+    """Provide a mock API error response for testing error handling.
+
+    Use this for testing how your code handles API errors and edge cases.
+
+    Returns:
+        Dictionary with error response structure.
+
+    """
+    return {
+        "error": {
+            "code": "RATE_LIMIT_EXCEEDED",
+            "message": "Too many requests. Please try again later.",
+            "status": 429,
+        },
+        "timestamp": "2026-01-31T12:00:00Z",
+    }
+
+
+@pytest.fixture
+def env_vars(monkeypatch: pytest.MonkeyPatch) -> dict[str, str]:
+    """Provide and set test environment variables.
+
+    Use this fixture to set temporary environment variables for testing.
+    Variables are automatically cleaned up after the test.
+
+    Returns:
+        Dictionary of test environment variables that were set.
+
+    Example:
+        def test_api_client(env_vars):
+            # env_vars["API_KEY"] is already set
+            client = APIClient()  # Reads API_KEY from environment
+            assert client.api_key == "test_api_key_12345"
+
+    """
+    test_env = {
+        "API_KEY": "test_api_key_12345",
+        "API_BASE_URL": "https://api.example.com",
+        "DEBUG": "true",
+    }
+    for key, value in test_env.items():
+        monkeypatch.setenv(key, value)
+    return test_env

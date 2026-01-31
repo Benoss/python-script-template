@@ -1,0 +1,11 @@
+timestamp,sensor_id,temperature,humidity,status
+2026-01-31T08:00:00Z,sensor_001,22.5,45.2,normal
+2026-01-31T08:15:00Z,sensor_001,22.8,45.8,normal
+2026-01-31T08:30:00Z,sensor_001,23.1,46.1,normal
+2026-01-31T08:45:00Z,sensor_002,21.9,48.3,normal
+2026-01-31T09:00:00Z,sensor_002,22.2,48.7,normal
+2026-01-31T09:15:00Z,sensor_003,25.6,52.1,warning
+2026-01-31T09:30:00Z,sensor_003,26.8,54.3,alert
+2026-01-31T09:45:00Z,sensor_001,22.6,45.5,normal
+2026-01-31T10:00:00Z,sensor_002,22.1,48.1,normal
+2026-01-31T10:15:00Z,sensor_003,24.2,50.8,warning

@@ -73,9 +73,56 @@ The pip blocking is set up automatically when running `task setup` or `task init
 
 ### 3. Testing
 
+**General Testing Philosophy:**
 - Write tests for all business logic and models if asked to do so
-- Use [pytest](https://docs.pytest.org/) as the test runner.
-- Place tests in a `tests/` directory.
+- Use [pytest](https://docs.pytest.org/) as the test runner
+- Place tests in `tests/` directory
+- Use fixtures from `tests/conftest.py` for common test setup
+- Keep tests focused and readable - prefer readability over DRY in test code
+
+**Running Tests:**
+- `task test` - Run all tests
+- `uv run pytest -k "pattern"` - Run tests matching pattern
+- `uv run pytest -m "not slow"` - Skip slow tests during development
+- `uv run pytest tests/test_specific.py::test_function` - Run specific test
+
+**Using Fixtures:**
+The project includes pre-configured fixtures in `tests/conftest.py`:
+- `tmp_output_dir` - Use for file operations without affecting actual tmp/ directory
+- `sample_json_data` - Use for testing JSON/API data processing
+- `sample_csv_file` - Use for testing CSV/data file processing
+- `fixtures_dir` - Access static test data from fixtures/ directory
+- `mock_api_response` - Use for testing error handling scenarios
+- `env_vars` - Pre-configured test environment variables (API keys, URLs, etc.)
+
+**For API Integration POCs:**
+- Use `env_vars` fixture to set test API credentials without modifying .env
+- Create mock responses in `fixtures/` directory for repeatable testing
+- Use `mock_api_response` fixture for testing error handling paths
+- When testing httpx clients, consider using respx or pytest-httpx for mocking
+- Example: Load `fixtures/sample_api_response.json` to test parsing logic
+
+**For Data Processing POCs:**
+- Use `sample_csv_file` fixture for testing data transformations
+- Use `tmp_output_dir` for writing processed results
+- Store reference datasets in `fixtures/` directory
+- Use parametrized tests (`@pytest.mark.parametrize`) for multiple input scenarios
+- Example: Test CSV parsing, filtering, aggregation with known sample data
+
+**Test Markers:**
+Use markers to categorize tests:
+- `@pytest.mark.slow` - For tests that take >1 second
+- `@pytest.mark.integration` - For tests that call external APIs
+- `@pytest.mark.unit` - For isolated unit tests
+- Configure additional markers in `[tool.pytest.ini_options]` in pyproject.toml
+
+**Best Practices:**
+- Test one thing per test function
+- Use descriptive test names: `test_<what>_<condition>_<expected>`
+- Use parametrize for testing multiple similar cases
+- Don't test implementation details, test behavior
+- For POCs, focus on critical paths and edge cases
+- Mock external dependencies (APIs, databases) to keep tests fast and reliable
 
 ### 4. Dependency Management
 
