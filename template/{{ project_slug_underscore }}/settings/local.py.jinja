@@ -1,4 +1,4 @@
-{% if project_type == "django" %}
+{%- if project_type == "django" %}
 """Local development settings for {{ project_name }}."""
 
 from .base import *  # noqa: F403 - Django settings pattern
@@ -17,14 +17,14 @@ DATABASES = {
 
 # Debug toolbar (optional, add to INSTALLED_APPS if needed)
 if DEBUG:
-    INSTALLED_APPS += ['django_extensions']  # noqa: F405 - Imported from .base
+    INSTALLED_APPS += ["django_extensions"]
     
 # Email backend for development
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # Logging
 LOGGING = {
-    'version': 1,
+    "version": 1,
     'disable_existing_loggers': False,
     'handlers': {
         'console': {

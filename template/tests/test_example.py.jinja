@@ -135,9 +135,9 @@ User = get_user_model()
 
 def test_home_page(client: Client) -> None:
     """Test that the home page loads successfully."""
-    response = client.get(reverse('core:home'))
+    response = client.get(reverse("core:home"))
     assert response.status_code == 200
-    assert b'Welcome to' in response.content
+    assert b"Welcome to" in response.content
 
 
 def test_admin_page_requires_login(client: Client) -> None:
@@ -155,7 +155,7 @@ def test_admin_page_accessible_for_admin(client: Client, admin_user: User) -> No
 
 def test_authenticated_user_access(authenticated_client: Client) -> None:
     """Test that authenticated users can access the home page."""
-    response = authenticated_client.get(reverse('core:home'))
+    response = authenticated_client.get(reverse("core:home"))
     assert response.status_code == 200
 
 

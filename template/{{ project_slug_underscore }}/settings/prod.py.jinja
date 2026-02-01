@@ -1,16 +1,14 @@
-{% if project_type == "django" %}
+{%- if project_type == "django" %}
 """Production settings for {{ project_name }}."""
 
 from .base import *  # noqa: F403 - Django settings pattern
 
 DEBUG = False
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')  # noqa: F405 - Imported from .base
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 
 # Database
-DATABASES = {
-    'default': env.db('DATABASE_URL')  # noqa: F405 - Imported from .base
-}
+DATABASES = {"default": env.db("DATABASE_URL")}
 
 # Security settings
 SECURE_SSL_REDIRECT = True
@@ -21,10 +19,10 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
-X_FRAME_OPTIONS = 'DENY'
+X_FRAME_OPTIONS = "DENY"
 
 # Email backend
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = env('EMAIL_HOST')  # noqa: F405 - Imported from .base
 EMAIL_PORT = env.int('EMAIL_PORT', default=587)  # noqa: F405 - Imported from .base
 EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)  # noqa: F405 - Imported from .base

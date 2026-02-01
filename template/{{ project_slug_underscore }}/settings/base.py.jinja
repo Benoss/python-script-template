@@ -1,9 +1,10 @@
-{% if project_type == "django" %}
+{%- if project_type == "django" %}
 """Django settings for {{ project_name }} project.
 
 Base settings shared across all environments.
 """
 from pathlib import Path
+
 import environ
 
 # Build paths inside the project

@@ -1,15 +1,15 @@
-{% if project_type == "django" %}
+{%- if project_type == "django" %}
 """Management command to initialize database with seed data.
 
 This command creates a superuser and can be extended to seed other data.
 """
+
 from argparse import ArgumentParser
 from typing import Any
 
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from loguru import logger
-
 
 User = get_user_model()
 
@@ -49,13 +49,13 @@ class Command(BaseCommand):
 
         if User.objects.filter(username=username).exists():
             logger.info(f"Superuser '{username}' already exists, skipping creation")
-            self.stdout.write(self.style.WARNING(f'⚠ Superuser "{username}" already exists'))
+            self.stdout.write(self.style.WARNING(f"⚠ Superuser \"{username}\" already exists"))
         else:
             User.objects.create_superuser(username=username, email=email, password=password)
             logger.success(f"Superuser '{username}' created successfully")
-            self.stdout.write(self.style.SUCCESS(f'✓ Superuser "{username}" created'))
-            self.stdout.write(self.style.SUCCESS(f'  Email: {email}'))
-            self.stdout.write(self.style.SUCCESS(f'  Password: {password}'))
+            self.stdout.write(self.style.SUCCESS(f"✓ Superuser \"{username}\" created"))
+            self.stdout.write(self.style.SUCCESS(f"  Email: {email}"))
+            self.stdout.write(self.style.SUCCESS(f"  Password: {password}"))
             self.stdout.write(self.style.WARNING("  ⚠ Remember to change the password in production!"))
 
     # Example template method for extending with seed data

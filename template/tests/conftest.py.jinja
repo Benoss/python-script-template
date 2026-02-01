@@ -143,7 +143,7 @@ def env_vars(monkeypatch: pytest.MonkeyPatch) -> dict[str, str]:
 pytest_plugins = ["pytest_django"]
 
 @pytest.fixture
-def test_user(db: Any) -> User:  # noqa: ANN401 - db is pytest-django marker fixture
+def test_user(db: Any) -> User:
     """Create a test user for authentication testing.
 
     Use this fixture for testing views that require authentication.
@@ -158,12 +158,12 @@ def test_user(db: Any) -> User:  # noqa: ANN401 - db is pytest-django marker fix
     return User.objects.create_user(
         username="testuser",
         email="testuser@example.com",
-        password="testpass123"  # noqa: S106 - Test password for fixtures
+        password="testpass123",  # noqa: S106 - Test password for fixtures
     )
 
 
 @pytest.fixture
-def admin_user(db: Any) -> User:  # noqa: ANN401 - db is pytest-django marker fixture
+def admin_user(db: Any) -> User:
     """Create an admin user for testing admin functionality.
 
     Use this fixture for testing admin-only views and permissions.
@@ -172,7 +172,7 @@ def admin_user(db: Any) -> User:  # noqa: ANN401 - db is pytest-django marker fi
     return User.objects.create_superuser(
         username="admin",
         email="admin@example.com",
-        password="adminpass123"  # noqa: S106 - Test password for fixtures
+        password="adminpass123",  # noqa: S106 - Test password for fixtures
     )
 
 
@@ -193,16 +193,8 @@ def authenticated_client(client: Client, test_user: User) -> Client:
     return client
 
 
-# Removed api_client fixture - Django REST Framework not included by default.
-# This project recommends Django Ninja for APIs.
-# If you need DRF, install it with: uv add djangorestframework
-# Then uncomment this fixture:
-#
-# @pytest.fixture  # noqa: ERA001
-# def api_client():  # noqa: ERA001
-#     """Provide a Django REST framework APIClient (if using DRF)."""  # noqa: ERA001
-#     from rest_framework.test import APIClient  # noqa: ERA001
-#     return APIClient()  # noqa: ERA001
+# Remove the DRF api_client fixture by default. If you need DRF, install it with: uv add djangorestframework
+# and add an api_client fixture that returns an APIClient instance.
 
 
 @pytest.fixture
