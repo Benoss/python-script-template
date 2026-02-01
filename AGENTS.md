@@ -27,6 +27,7 @@ This repository is a **Copier template** that generates modern Python projects. 
 ├── copier.yml                # Template configuration and variables
 ├── LICENSE                   # Template license
 ├── readme.md                 # Repository documentation
+├── Taskfile.yml              # Test automation for template validation
 └── template/                 # All files that get copied to generated projects
     ├── AGENTS.md.jinja       # Agent instructions for generated projects
     ├── main_*.py.jinja       # Script entry point (conditional)
@@ -207,8 +208,23 @@ django>=5.0
 
 ### 2. Test Both Project Types
 
-After making changes to template files, test generation for both types:
+After making changes to template files, test generation for both types using the repository's Taskfile:
 
+```bash
+# Test script project generation (generates, runs task init, runs task lint)
+task test-script
+
+# Test Django project generation (generates, runs task init, runs task lint)
+task test-django
+
+# Test both project types
+task test-all
+
+# Clean up test projects
+task clean
+```
+
+**Manual testing** (if needed):
 ```bash
 # Test script project generation
 copier copy . /tmp/test-script-project -d project_type=script -d project_name="Test Script"
@@ -247,7 +263,33 @@ When adding files that should only appear in one project type:
 
 ## Testing Template Changes
 
-### Local Testing Workflow
+### Automated Testing Workflow (Recommended)
+
+The repository includes a `Taskfile.yml` that automates testing template generation:
+
+```bash
+# Test both project types (recommended after template changes)
+task test-all
+
+# Or test individually
+task test-script   # Generate script project, run init & lint
+task test-django   # Generate Django project, run init & lint
+
+# Clean up test projects
+task clean
+```
+
+**What the test tasks do**:
+1. Generate a fresh project in `/tmp/copier-test/`
+2. Run `task init` to install dependencies and set up environment
+3. Run `task lint` to verify code quality (Ruff + Ty)
+4. Report any linting errors
+
+**Important**: If `task lint` reports errors in generated projects, those fixes must be ported back to the template files in `template/` directory.
+
+### Manual Testing Workflow
+
+For more control or debugging:
 
 1. **Make changes** to template files
 2. **Test generation**: 
@@ -257,9 +299,9 @@ When adding files that should only appear in one project type:
 3. **Verify standards**:
    ```bash
    cd /tmp/test-project
-   task setup  # Install dependencies
-   task lint   # Run Ruff + Ty
-   task test   # Run pytest
+   task init  # Install dependencies
+   task lint  # Run Ruff + Ty
+   task test  # Run pytest
    ```
 4. **Test both types**: Repeat for `project_type=script` and `project_type=django`
 
@@ -301,7 +343,13 @@ Remember the distinction:
 Since this is a template repository, you don't run typical Python commands here. Instead:
 
 ```bash
-# Test template generation
+# Automated testing (recommended)
+task test-all         # Test both script and Django generation
+task test-script      # Test script project only
+task test-django      # Test Django project only
+task clean            # Remove test projects
+
+# Manual template generation
 copier copy . /tmp/test-project
 
 # Update an existing project from template
@@ -310,9 +358,16 @@ copier update
 
 # Test generated project follows standards
 cd /tmp/test-project
+task init   # Install dependencies
 task lint   # Ruff + Ty
 task test   # pytest
 ```
+
+**Workflow after template changes**:
+1. Edit template files in `template/`
+2. Run `task test-all` to verify both project types
+3. If linting errors appear, fix them in the template files
+4. Repeat until `task test-all` passes cleanly
 
 ## Tooling Reference
 

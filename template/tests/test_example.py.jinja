@@ -124,37 +124,43 @@ def test_example_slow_operation(sample_json_data: dict[str, Any]) -> None:
 These tests show common patterns for testing Django views, models, and functionality.
 """
 
+from pathlib import Path
+
 import pytest
+from django.contrib.auth import get_user_model
+from django.test import Client
 from django.urls import reverse
 
+User = get_user_model()
 
-def test_home_page(client):
+
+def test_home_page(client: Client) -> None:
     """Test that the home page loads successfully."""
     response = client.get(reverse('core:home'))
     assert response.status_code == 200
     assert b'Welcome to' in response.content
 
 
-def test_admin_page_requires_login(client):
+def test_admin_page_requires_login(client: Client) -> None:
     """Test that admin page redirects to login for unauthenticated users."""
     response = client.get('/admin/')
     assert response.status_code == 302  # Redirect to login
 
 
-def test_admin_page_accessible_for_admin(client, admin_user):
+def test_admin_page_accessible_for_admin(client: Client, admin_user: User) -> None:
     """Test that admin users can access the admin page."""
     client.force_login(admin_user)
     response = client.get('/admin/')
     assert response.status_code == 200
 
 
-def test_authenticated_user_access(authenticated_client):
+def test_authenticated_user_access(authenticated_client: Client) -> None:
     """Test that authenticated users can access the home page."""
     response = authenticated_client.get(reverse('core:home'))
     assert response.status_code == 200
 
 
-def test_user_creation(test_user):
+def test_user_creation(test_user: User) -> None:
     """Test that test user is created correctly."""
     assert test_user.username == "testuser"
     assert test_user.email == "testuser@example.com"
@@ -163,7 +169,7 @@ def test_user_creation(test_user):
     assert not test_user.is_superuser
 
 
-def test_admin_user_creation(admin_user):
+def test_admin_user_creation(admin_user: User) -> None:
     """Test that admin user is created correctly."""
     assert admin_user.username == "admin"
     assert admin_user.is_staff
@@ -171,7 +177,7 @@ def test_admin_user_creation(admin_user):
 
 
 @pytest.mark.django_db
-def test_fixtures_directory_exists(fixtures_dir):
+def test_fixtures_directory_exists(fixtures_dir: Path) -> None:
     """Test fixtures directory access."""
     assert fixtures_dir.exists()
     assert fixtures_dir.is_dir()

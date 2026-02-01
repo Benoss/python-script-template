@@ -1,8 +1,7 @@
 {% if project_type == "django" %}
-"""
-Staging environment settings for {{ project_name }}.
-"""
-from .base import *
+"""Staging environment settings for {{ project_name }}."""
+
+from .base import *  # noqa: F403 - Django settings pattern
 
 DEBUG = env.bool('DEBUG', default=False)
 
@@ -23,11 +22,11 @@ X_FRAME_OPTIONS = 'DENY'
 
 # Email backend
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = env('EMAIL_HOST', default='localhost')
-EMAIL_PORT = env.int('EMAIL_PORT', default=587)
-EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
-EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
+EMAIL_HOST = env('EMAIL_HOST', default='localhost')  # noqa: F405 - Imported from .base
+EMAIL_PORT = env.int('EMAIL_PORT', default=587)  # noqa: F405 - Imported from .base
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)  # noqa: F405 - Imported from .base
+EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')  # noqa: F405 - Imported from .base
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')  # noqa: F405 - Imported from .base
 
 # Logging
 LOGGING = {

@@ -12,6 +12,7 @@ from typing import Any
 import pytest
 {% if project_type == "django" %}
 from django.contrib.auth import get_user_model
+from django.test import Client
 
 User = get_user_model()
 {% endif %}
@@ -141,7 +142,7 @@ pytest_plugins = ["pytest_django"]
 
 
 @pytest.fixture
-def test_user(db):
+def test_user(db: Any) -> User:  # noqa: ANN401 - db is pytest-django marker fixture
     """Create a test user for authentication testing.
 
     Use this fixture for testing views that require authentication.
@@ -156,12 +157,12 @@ def test_user(db):
     return User.objects.create_user(
         username="testuser",
         email="testuser@example.com",
-        password="testpass123"
+        password="testpass123"  # noqa: S106 - Test password for fixtures
     )
 
 
 @pytest.fixture
-def admin_user(db):
+def admin_user(db: Any) -> User:  # noqa: ANN401 - db is pytest-django marker fixture
     """Create an admin user for testing admin functionality.
 
     Use this fixture for testing admin-only views and permissions.
@@ -170,12 +171,12 @@ def admin_user(db):
     return User.objects.create_superuser(
         username="admin",
         email="admin@example.com",
-        password="adminpass123"
+        password="adminpass123"  # noqa: S106 - Test password for fixtures
     )
 
 
 @pytest.fixture
-def authenticated_client(client, test_user):
+def authenticated_client(client: Client, test_user: User) -> Client:
     """Provide a Django test client with authenticated user.
 
     Use this for testing views that require authentication without
@@ -196,11 +197,11 @@ def authenticated_client(client, test_user):
 # If you need DRF, install it with: uv add djangorestframework
 # Then uncomment this fixture:
 #
-# @pytest.fixture
-# def api_client():
-#     """Provide a Django REST framework APIClient (if using DRF)."""
-#     from rest_framework.test import APIClient
-#     return APIClient()
+# @pytest.fixture  # noqa: ERA001
+# def api_client():  # noqa: ERA001
+#     """Provide a Django REST framework APIClient (if using DRF)."""  # noqa: ERA001
+#     from rest_framework.test import APIClient  # noqa: ERA001
+#     return APIClient()  # noqa: ERA001
 
 
 @pytest.fixture

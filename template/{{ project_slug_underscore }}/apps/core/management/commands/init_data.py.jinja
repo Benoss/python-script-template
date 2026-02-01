@@ -1,10 +1,13 @@
 {% if project_type == "django" %}
-"""
-Management command to initialize database with seed data.
+"""Management command to initialize database with seed data.
+
 This command creates a superuser and can be extended to seed other data.
 """
-from django.core.management.base import BaseCommand
+from argparse import ArgumentParser
+from typing import Any
+
 from django.contrib.auth import get_user_model
+from django.core.management.base import BaseCommand
 from loguru import logger
 
 
@@ -12,16 +15,19 @@ User = get_user_model()
 
 
 class Command(BaseCommand):
+    """Django management command to initialize database with seed data."""
+
     help = 'Initialize database with seed data (superuser and sample data)'
 
-    def add_arguments(self, parser):
+    def add_arguments(self, parser: ArgumentParser) -> None:
+        """Add command line arguments."""
         parser.add_argument(
             '--skip-superuser',
             action='store_true',
             help='Skip superuser creation',
         )
 
-    def handle(self, *args, **options):
+    def handle(self, *args: Any, **options: Any) -> None:
         """Execute the command."""
         logger.info("Starting database initialization...")
         
@@ -30,16 +36,16 @@ class Command(BaseCommand):
             self._create_superuser()
         
         # Add more seed data functions here as your project grows
-        # Example: self._create_sample_data()
+        # Example: self._create_sample_data()  # noqa: ERA001 - Intentional example template
         
         logger.success("Database initialization completed!")
         self.stdout.write(self.style.SUCCESS('✓ Database initialized successfully'))
 
-    def _create_superuser(self):
+    def _create_superuser(self) -> None:
         """Create a superuser if it doesn't exist."""
         username = 'admin'
         email = 'admin@{{ project_slug_dashes }}.local'
-        password = 'admin'  # Change this in production!
+        password = 'admin'  # noqa: S105 - Dev password, see warning below
         
         if User.objects.filter(username=username).exists():
             logger.info(f"Superuser '{username}' already exists, skipping creation")
@@ -56,14 +62,12 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS(f'  Password: {password}'))
             self.stdout.write(self.style.WARNING('  ⚠ Remember to change the password in production!'))
     
-    # def _create_sample_data(self):
-    #     """
-    #     Create sample data for testing.
-    #     Add your model seed data here as your project grows.
-    #     """
-    #     logger.info("Creating sample data...")
-    #     # Example:
-    #     # from {{ project_slug_underscore }}.apps.core.models import MyModel
-    #     # MyModel.objects.get_or_create(name='Sample', defaults={'description': 'Sample data'})
-    #     self.stdout.write(self.style.SUCCESS('✓ Sample data created'))
+    # Example template method for extending with seed data
+    # def _create_sample_data(self):  # noqa: ERA001 - Intentional example template
+    #     """Create sample data for testing."""  # noqa: ERA001
+    #     logger.info("Creating sample data...")  # noqa: ERA001
+    #     # Example:  # noqa: ERA001
+    #     # from {{ project_slug_underscore }}.apps.core.models import MyModel  # noqa: ERA001
+    #     # MyModel.objects.get_or_create(name='Sample', defaults={'description': 'Sample data'})  # noqa: ERA001
+    #     self.stdout.write(self.style.SUCCESS('✓ Sample data created'))  # noqa: ERA001
 {% endif %}

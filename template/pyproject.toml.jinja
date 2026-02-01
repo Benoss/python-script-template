@@ -88,7 +88,43 @@ ignore = [
     "D104", # Missing docstring in public package
     "TRY003", # Checks for long exception messages that are not defined in the exception class itself.
     "EM101", # Checks for the use of string literals in exception constructors.
+{% if project_type == "script" %}
+    # Script-specific exclusions
+    "INP001",  # Implicit namespace package - tests/ directory intentionally not a package
+{% endif %}
+{% if project_type == "django" %}
+    # Django-specific exclusions
+    "ANN401",  # Dynamically typed expressions (Any) - Required for Django interfaces
+    "INP001",  # Implicit namespace package - tests/ directory intentionally not a package
+    "PLC0415",  # Import should be at top-level - Django manage.py pattern
+    "EXE001",  # Shebang is present but file is not executable - Will be made executable in deployment
+{% endif %}
 ]
+
+[tool.ruff.lint.per-file-ignores]
+# Test files use pytest patterns
+"tests/*" = [
+    "S101",     # Use of assert detected - pytest standard
+    "PLR2004",  # Magic value used in comparison - HTTP status codes/test values are standard
+{% if project_type == "script" %}
+    "TC003",    # Move import into type-checking block - Runtime imports needed for fixtures
+    "ARG001",   # Unused function argument - Fixtures require specific signatures
+    "PLC0415",  # Import should be at top-level - Test-specific imports are fine
+{% endif %}
+{% if project_type == "django" %}
+    "TC002",    # Move import into type-checking block - Runtime imports needed for fixtures
+    "TC003",    # Move import into type-checking block - Runtime imports needed for fixtures
+    "ARG001",   # Unused function argument - Fixtures require specific signatures
+{% endif %}
+]
+{% if project_type == "django" %}
+# Django app tests.py files also use pytest patterns
+"*/apps/*/tests.py" = ["S101", "PLR2004"]
+# Settings files use star imports by Django convention
+"*/settings/*.py" = ["F405"]
+# Management commands need specific signatures
+"*/management/commands/*.py" = ["ARG002", "TC003"]
+{% endif %}
 
 
 # --------------------------------------------------------------------------------------------------

@@ -26,6 +26,8 @@ Code quality is enforced using [Ruff](https://docs.astral.sh/ruff/) for linting 
 - **Always run Ruff and Ty before committing code.**
 - Follow [PEP8](https://peps.python.org/pep-0008/) style guidelines.
 - Use type hints everywhere.
+- Sometimes you will have to use type: ignore always ask before adding those
+- You can also ask to add a global ignore rule for directory if it makes sense, example assert are allowed in the test directory
 - Keep imports organized and sorted (stdlib, third-party, local) unused imports are removed (Ruff will check this).
 - Prefer f-strings for string formatting.
 - `open()` should be replaced by pathlib `Path.open()`

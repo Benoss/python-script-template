@@ -1,0 +1,60 @@
+version: '3'
+
+vars:
+  TEST_DIR: /tmp/copier-test
+  SCRIPT_PROJECT: test-script
+  DJANGO_PROJECT: test-django
+
+tasks:
+  clean:
+    desc: Clean up test project directories
+    cmds:
+      - rm -rf {{.TEST_DIR}}/{{.SCRIPT_PROJECT}}
+      - rm -rf {{.TEST_DIR}}/{{.DJANGO_PROJECT}}
+
+  test-script:
+    desc: Generate and test a script project
+    cmds:
+      - mkdir -p {{.TEST_DIR}}
+      - rm -rf {{.TEST_DIR}}/{{.SCRIPT_PROJECT}}
+      - |
+        uvx copier copy --defaults --vcs-ref HEAD \
+          --data project_type=script \
+          --data project_name="Test Script Project" \
+          --data project_slug_dashes={{.SCRIPT_PROJECT}} \
+          --data project_slug_underscore=test_script \
+          --data author_name="Test Author" \
+          --data author_email="test@example.com" \
+          . {{.TEST_DIR}}/{{.SCRIPT_PROJECT}}
+      - cd {{.TEST_DIR}}/{{.SCRIPT_PROJECT}} && task init
+      - cd {{.TEST_DIR}}/{{.SCRIPT_PROJECT}} && task lint
+    silent: false
+
+  test-django:
+    desc: Generate and test a Django project
+    cmds:
+      - mkdir -p {{.TEST_DIR}}
+      - rm -rf {{.TEST_DIR}}/{{.DJANGO_PROJECT}}
+      - |
+        uvx copier copy --defaults --vcs-ref HEAD \
+          --data project_type=django \
+          --data project_name="Test Django Project" \
+          --data project_slug_dashes={{.DJANGO_PROJECT}} \
+          --data project_slug_underscore=test_django \
+          --data author_name="Test Author" \
+          --data author_email="test@example.com" \
+          . {{.TEST_DIR}}/{{.DJANGO_PROJECT}}
+      - cd {{.TEST_DIR}}/{{.DJANGO_PROJECT}} && task init
+      - cd {{.TEST_DIR}}/{{.DJANGO_PROJECT}} && task lint
+    silent: false
+
+  test-all:
+    desc: Test both script and Django project generation
+    cmds:
+      - task: test-script
+      - task: test-django
+
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
