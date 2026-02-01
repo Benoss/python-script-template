@@ -1,5 +1,8 @@
 {% if project_type == "django" %}
-// This project uses bunx to run Tailwind CSS without Node.js/npm dependencies
-// This file exists for metadata only - actual commands use 'task tailwind-watch' or 'task tailwind-build'
-// which execute: bunx @tailwindcss/cli@latest
+{
+  "dependencies": {},
+  "devDependencies": {
+    "tailwindcss": "^4.1.18"
+  }
+}
 {% endif %}

@@ -190,3 +190,5 @@ node_modules/
 # Podman data
 podman_data/
 bun.lock
+bun.lockb
+staticfiles/

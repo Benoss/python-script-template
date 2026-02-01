@@ -139,10 +139,30 @@ tasks:
   tailwind-watch:
     desc: Watch and compile Tailwind CSS for development
     cmds:
-      - bunx @tailwindcss/cli@latest -i ./static/css/input.css -o ./static/css/output.css --watch
+      - |
+        # Install dev dependencies with bun before running Tailwind; fail if bun is missing
+        if [ -f package.json ]; then
+          if command -v bun >/dev/null 2>&1; then
+            bun install || { echo "bun install failed" >&2; exit 1; }
+          else
+            echo "Error: 'bun' is required to run Tailwind tasks. Install from https://bun.sh" >&2
+            exit 1
+          fi
+        fi
+        bunx @tailwindcss/cli@latest -i ./static/css/input.css -o ./static/css/output.css --watch
 
   tailwind-build:
     desc: Build Tailwind CSS for production
     cmds:
-      - bunx @tailwindcss/cli@latest -i ./static/css/input.css -o ./static/css/output.css --minify
+      - |
+        # Install dev dependencies with bun before running Tailwind; fail if bun is missing
+        if [ -f package.json ]; then
+          if command -v bun >/dev/null 2>&1; then
+            bun install || { echo "bun install failed" >&2; exit 1; }
+          else
+            echo "Error: 'bun' is required to run Tailwind tasks. Install from https://bun.sh" >&2
+            exit 1
+          fi
+        fi
+        bunx @tailwindcss/cli@latest -i ./static/css/input.css -o ./static/css/output.css --minify
 {% endif %}

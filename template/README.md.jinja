@@ -74,10 +74,9 @@ A Django project built with modern tooling and best practices.
    ```bash
    # Linux/macOS/WSL
    curl -fsSL https://bun.sh/install | bash
-   
-   # Or via npm if you have it
-   npm install -g bun
    ```
+   
+   > **Note:** Do not install Bun via `npm`. Use the official installer above (https://bun.sh).
 
 ## Quick Start
 
@@ -174,7 +173,7 @@ Run `task --list` to see all available tasks:
 ├── pyproject.toml                          # Python dependencies
 ├── Taskfile.yml                            # Task definitions
 ├── tailwind.config.js                      # Tailwind configuration (legacy, not needed in v4.1)
-└── package.json                            # Project info (not used with bunx)
+└── package.json                            # Project info (used by Bun; install deps with `bun install`)
 ```
 
 ## Development Workflow
