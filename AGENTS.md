@@ -367,7 +367,24 @@ task test   # pytest
 1. Edit template files in `template/`
 2. Run `task test-all` to verify both project types
 3. If linting errors appear, fix them in the template files
-4. Repeat until `task test-all` passes cleanly
+4. If adding a new ignore rule for types or linting make sure it is inline or folder specific, always ask when adding ignore
+5. Repeat until `task test-all` passes cleanly
+---
+
+### Check Ruff formatting changes ✅
+
+- If running `task lint` in a freshly generated project modifies files (Ruff auto-formats), use the helper tasks to reproduce and capture diffs:
+  - `task test-script-format-diff` — generate a script project and fail with `ruff-format.patch` if files are changed
+  - `task test-django-format-diff` — generate a Django project and fail with `ruff-format.patch` if files are changed
+  - `task test-format-diff` — run both checks
+
+- When a task fails it writes `ruff-format.patch` and `ruff-format-files.txt` into the generated project directory (e.g., `/tmp/copier-test/test-script/ruff-format.patch`).
+
+- To make it easier to collect patches and clean up generated projects, use the wrapper task `task test-format-diff-run`. This will run both format-diff checks, copy any `ruff-format.patch` and `ruff-format-files.txt` into `./tmp/ruff-format/`, and then remove the generated test projects. The task will exit non-zero if any patches were saved.
+
+- Apply the patch's changes back into the template sources in `template/` (update the corresponding `.jinja` files so generated output is already formatted).
+
+- Regenerate and re-run the format-diff tasks until they succeed (no Ruff modifications). This makes `task lint` idempotent for freshly generated projects and prevents widespread auto-format changes on first run.
 
 ## Tooling Reference
 

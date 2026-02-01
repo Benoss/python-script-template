@@ -44,9 +44,94 @@ tasks:
           --data author_name="Test Author" \
           --data author_email="test@example.com" \
           . {{.TEST_DIR}}/{{.DJANGO_PROJECT}}
+      - cd {{.TEST_DIR}}/{{.DJANGO_PROJECT}} && (git rev-parse --is-inside-work-tree >/dev/null 2>&1 || git init && git add -A && git commit -m "initial" || true)
       - cd {{.TEST_DIR}}/{{.DJANGO_PROJECT}} && task init
       - cd {{.TEST_DIR}}/{{.DJANGO_PROJECT}} && task lint
     silent: false
+
+  test-script-format-diff:
+    desc: Generate a script project, run `task lint`, and fail if Ruff modifies files
+    cmds:
+      - mkdir -p {{.TEST_DIR}}
+      - rm -rf {{.TEST_DIR}}/{{.SCRIPT_PROJECT}}
+      - |
+        uvx copier copy --defaults --vcs-ref HEAD \
+          --data project_type=script \
+          --data project_name="Test Script Project" \
+          --data project_slug_dashes={{.SCRIPT_PROJECT}} \
+          --data project_slug_underscore=test_script \
+          --data author_name="Test Author" \
+          --data author_email="test@example.com" \
+          . {{.TEST_DIR}}/{{.SCRIPT_PROJECT}}
+      - cd {{.TEST_DIR}}/{{.SCRIPT_PROJECT}} && (git rev-parse --is-inside-work-tree >/dev/null 2>&1 || git init && git add -A && git commit -m "initial" || true)
+      - cd {{.TEST_DIR}}/{{.SCRIPT_PROJECT}} && task init
+      - cd {{.TEST_DIR}}/{{.SCRIPT_PROJECT}} && task lint || true
+      - cd {{.TEST_DIR}}/{{.SCRIPT_PROJECT}} && git --no-pager diff --name-only | tee ruff-format-files.txt
+      - cd {{.TEST_DIR}}/{{.SCRIPT_PROJECT}} && git --no-pager diff --color > ruff-format.patch || true
+      - |
+        cd {{.TEST_DIR}}/{{.SCRIPT_PROJECT}} && \
+        if [ -s ruff-format-files.txt ]; then \
+          echo "Ruff formatting changes detected; see ruff-format.patch and ruff-format-files.txt"; exit 1; \
+        fi
+    silent: false
+
+  test-django-format-diff:
+    desc: Generate a Django project, run `task lint`, and fail if Ruff modifies files
+    cmds:
+      - mkdir -p {{.TEST_DIR}}
+      - rm -rf {{.TEST_DIR}}/{{.DJANGO_PROJECT}}
+      - |
+        uvx copier copy --defaults --vcs-ref HEAD \
+          --data project_type=django \
+          --data project_name="Test Django Project" \
+          --data project_slug_dashes={{.DJANGO_PROJECT}} \
+          --data project_slug_underscore=test_django \
+          --data author_name="Test Author" \
+          --data author_email="test@example.com" \
+          . {{.TEST_DIR}}/{{.DJANGO_PROJECT}}
+      - cd {{.TEST_DIR}}/{{.DJANGO_PROJECT}} && (git rev-parse --is-inside-work-tree >/dev/null 2>&1 || git init && git add -A && git commit -m "initial" || true)
+      - cd {{.TEST_DIR}}/{{.DJANGO_PROJECT}} && task init
+      - cd {{.TEST_DIR}}/{{.DJANGO_PROJECT}} && task lint || true
+      - cd {{.TEST_DIR}}/{{.DJANGO_PROJECT}} && git --no-pager diff --name-only | tee ruff-format-files.txt
+      - cd {{.TEST_DIR}}/{{.DJANGO_PROJECT}} && git --no-pager diff --color > ruff-format.patch || true
+      - |
+        cd {{.TEST_DIR}}/{{.DJANGO_PROJECT}} && \
+        if [ -s ruff-format-files.txt ]; then \
+          echo "Ruff formatting changes detected; see ruff-format.patch and ruff-format-files.txt"; exit 1; \
+        fi
+    silent: false
+
+  test-format-diff:
+    desc: Run format-diff checks for both project types
+    cmds:
+      - task: test-script-format-diff
+      - task: test-django-format-diff
+
+  test-format-diff-run:
+    desc: Run both format-diff checks, collect patches to ./tmp/ruff-format and clean test projects
+    cmds:
+      - |
+        task test-script-format-diff || true
+      - |
+        task test-django-format-diff || true
+      - mkdir -p ./tmp/ruff-format
+      - |
+        if [ -f {{.TEST_DIR}}/{{.SCRIPT_PROJECT}}/ruff-format.patch ]; then \
+          cp {{.TEST_DIR}}/{{.SCRIPT_PROJECT}}/ruff-format.patch ./tmp/ruff-format/{{.SCRIPT_PROJECT}}-ruff-format.patch; \
+          cp {{.TEST_DIR}}/{{.SCRIPT_PROJECT}}/ruff-format-files.txt ./tmp/ruff-format/{{.SCRIPT_PROJECT}}-ruff-format-files.txt; \
+        fi
+      - |
+        if [ -f {{.TEST_DIR}}/{{.DJANGO_PROJECT}}/ruff-format.patch ]; then \
+          cp {{.TEST_DIR}}/{{.DJANGO_PROJECT}}/ruff-format.patch ./tmp/ruff-format/{{.DJANGO_PROJECT}}-ruff-format.patch; \
+          cp {{.TEST_DIR}}/{{.DJANGO_PROJECT}}/ruff-format-files.txt ./tmp/ruff-format/{{.DJANGO_PROJECT}}-ruff-format-files.txt; \
+        fi
+      - task: clean
+      - |
+        if [ -n "$(ls -A ./tmp/ruff-format 2>/dev/null)" ]; then \
+          echo "Saved Ruff patches to ./tmp/ruff-format"; exit 1; \
+        else \
+          echo "No Ruff formatting diffs detected"; \
+        fi
 
   test-all:
     desc: Test both script and Django project generation
