@@ -118,11 +118,14 @@ def test_example_slow_operation(sample_json_data: dict[str, Any]) -> None:
     for _ in range(100):
         result.extend([user["name"] for user in sample_json_data["users"]])
     assert len(result) == 300
+
+
 {% elif project_type == "django" %}
 """Example tests for Django project.
 
 These tests show common patterns for testing Django views, models, and functionality.
 """
+
 from pathlib import Path
 
 import pytest
@@ -182,4 +185,3 @@ def test_fixtures_directory_exists(fixtures_dir: Path) -> None:
     assert fixtures_dir.is_dir()
     assert fixtures_dir.name == "fixtures"
 {%- endif %}
-

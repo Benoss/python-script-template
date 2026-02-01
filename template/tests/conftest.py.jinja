@@ -19,6 +19,7 @@ from django.test import Client
 User = get_user_model()
 {% endif %}
 
+
 {% if project_type == "script" %}
 @pytest.fixture
 def tmp_output_dir(tmp_path: Path) -> Path:
@@ -139,8 +140,11 @@ def env_vars(monkeypatch: pytest.MonkeyPatch) -> dict[str, str]:
         monkeypatch.setenv(key, value)
     return test_env
 {%- elif project_type == "django" %}
+
 # Django-specific configuration
 pytest_plugins = ["pytest_django"]
+
+
 
 @pytest.fixture
 def test_user(db: Any) -> User:
@@ -197,6 +201,16 @@ def authenticated_client(client: Client, test_user: User) -> Client:
 # and add an api_client fixture that returns an APIClient instance.
 
 
+# If you need DRF, install it with: uv add djangorestframework
+# Then uncomment this fixture:
+#
+# @pytest.fixture
+# def api_client():
+#     """Provide a Django REST framework APIClient (if using DRF)."""  # noqa: ERA001
+#     from rest_framework.test import APIClient  # noqa: ERA001
+#     return APIClient()  # noqa: ERA001
+
+
 @pytest.fixture
 def fixtures_dir() -> Path:
     """Provide path to the fixtures directory for loading test data files.
@@ -209,4 +223,3 @@ def fixtures_dir() -> Path:
     """
     return Path(__file__).parent.parent / "fixtures"
 {%- endif %}
-

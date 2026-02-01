@@ -3,6 +3,7 @@
 
 Base settings shared across all environments.
 """
+
 from pathlib import Path
 
 import environ
@@ -27,10 +28,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    
     # Third party
     "django_cotton",
-    
     # Local apps
     "{{ project_slug_underscore }}.apps.core",
 ]
