@@ -1,26 +1,23 @@
 """Pytest configuration and shared fixtures for testing.
-
 {% if project_type == "script" %}
 This module provides common fixtures for API integration and data processing POCs.
-{% elif project_type == "django" %}
+{%- elif project_type == "django" %}
 This module provides common fixtures for Django testing with pytest-django.
-{% endif %}
-
+{%- endif %}
 """
 
 from pathlib import Path
 from typing import Any
 
 import pytest
-{% if project_type == "django" %}
+{%- if project_type == "django" %}
 from django.contrib.auth import get_user_model
 from django.test import Client
 
 User = get_user_model()
-{% endif %}
+{%- endif %}
 
-
-{% if project_type == "script" %}
+{%- if project_type == "script" %}
 @pytest.fixture
 def tmp_output_dir(tmp_path: Path) -> Path:
     """Provide an isolated temporary directory for test outputs.
@@ -143,7 +140,6 @@ def env_vars(monkeypatch: pytest.MonkeyPatch) -> dict[str, str]:
 
 # Django-specific configuration
 pytest_plugins = ["pytest_django"]
-
 
 
 @pytest.fixture

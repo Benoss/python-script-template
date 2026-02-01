@@ -110,6 +110,7 @@ tasks:
   test-format-diff-run:
     desc: Run both format-diff checks, collect patches to ./tmp/ruff-format and clean test projects
     cmds:
+      - rm -rf ./tmp/ruff-format/*
       - |
         task test-script-format-diff || true
       - |

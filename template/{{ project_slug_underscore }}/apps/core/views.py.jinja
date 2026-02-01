@@ -1,4 +1,4 @@
-{%- if project_type == "django" %}
+{%- if project_type == "django" -%}
 from typing import Any
 
 from django.conf import settings
@@ -15,4 +15,4 @@ class HomeView(TemplateView):
         context = super().get_context_data(**kwargs)
         context["project_name"] = settings.PROJECT_NAME
         return context
-{% endif %}
+{%- endif %}

@@ -1,4 +1,4 @@
-{%- if project_type == "django" %}
+{%- if project_type == "django" -%}
 """Management command to initialize database with seed data.
 
 This command creates a superuser and can be extended to seed other data.
@@ -66,4 +66,4 @@ class Command(BaseCommand):
     #     # from {{ project_slug_underscore }}.apps.core.models import MyModel  # noqa: ERA001
     #     # MyModel.objects.get_or_create(name='Sample', defaults={'description': 'Sample data'})  # noqa: ERA001
     #     self.stdout.write(self.style.SUCCESS("✓ Sample data created"))  # noqa: ERA001
-{% endif %}
+{%- endif %}

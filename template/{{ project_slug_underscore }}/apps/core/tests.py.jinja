@@ -1,4 +1,4 @@
-{%- if project_type == "django" %}
+{%- if project_type == "django" -%}
 from django.test import TestCase
 from django.urls import reverse
 
@@ -15,4 +15,4 @@ class HomeViewTest(TestCase):
         """Test that home page uses the correct template."""
         response = self.client.get(reverse("core:home"))
         assert "home.html" in [t.name for t in response.templates]
-{% endif %}
+{%- endif %}

@@ -1,4 +1,4 @@
-{%- if project_type == "django" %}
+{%- if project_type == "django" -%}
 """Local development settings for {{ project_name }}."""
 
 from .base import *  # noqa: F403 - Django settings pattern
@@ -11,7 +11,8 @@ ALLOWED_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0"]  # noqa: S104 - Dev enviro
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 DATABASES = {
     "default": env.db(
-        "DATABASE_URL", default="postgresql://{{ project_slug_underscore }}_user:{{ project_slug_underscore }}_password@localhost:5432/{{ project_slug_underscore }}_db"
+        "DATABASE_URL",
+        default="postgresql://{{ project_slug_underscore }}_user:{{ project_slug_underscore }}_password@localhost:5432/{{ project_slug_underscore }}_db",
     )
 }
 
@@ -43,4 +44,4 @@ LOGGING = {
         },
     },
 }
-{% endif %}
+{%- endif %}

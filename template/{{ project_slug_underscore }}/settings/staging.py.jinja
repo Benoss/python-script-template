@@ -1,4 +1,4 @@
-{%- if project_type == "django" %}
+{%- if project_type == "django" -%}
 """Staging environment settings for {{ project_name }}."""
 
 from .base import *  # noqa: F403 - Django settings pattern
@@ -47,4 +47,4 @@ LOGGING = {
         },
     },
 }
-{% endif %}
+{%- endif %}
