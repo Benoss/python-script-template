@@ -67,6 +67,12 @@ Code quality is enforced using [Ruff](https://docs.astral.sh/ruff/) for linting 
 - **Templates**: Place shared templates in `templates/` directory
   - Components go in `templates/components/` for django-cotton
   - App-specific templates can go in app's `templates/` folder
+- **Technical Decisions**: Document architectural decisions in `specs/` directory
+  - Root `specs/` for cross-cutting concerns (devops-infrastructure.md, etc.)
+  - App-specific specs in `{{ project_slug_underscore }}/apps/<app_name>/specs/`
+  - Check existing specs before making architectural decisions
+  - Update specs when decisions change or evolve
+  - See [specs/README.md](specs/README.md) for guidelines
 {% endif %}
 
 

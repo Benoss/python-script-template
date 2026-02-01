@@ -18,6 +18,8 @@ User = get_user_model()
 {%- endif %}
 
 {%- if project_type == "script" %}
+
+
 @pytest.fixture
 def tmp_output_dir(tmp_path: Path) -> Path:
     """Provide an isolated temporary directory for test outputs.

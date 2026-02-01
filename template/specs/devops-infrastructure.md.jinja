@@ -1,0 +1,259 @@
+````markdown
+# DevOps & Infrastructure Decisions
+
+**Purpose**: Document technical decisions for deployment, infrastructure, and cross-cutting operational concerns.
+
+**Last Updated**: February 1, 2026
+
+---
+
+## Logging Strategy
+
+### Library Choice
+
+**Decision**: Use **Loguru** for all logging across the project.
+
+**Rationale**:
+- Simpler API than Python's stdlib `logging` module
+- Better defaults (colorized output, structured data support)
+- No complex logger hierarchy configuration needed
+- Seamless integration with Django via interception
+- Native JSON serialization for structured logging
+
+**Alternatives Considered**:
+- Python stdlib `logging`: Too verbose, complex configuration
+- structlog: More overhead, Loguru sufficient for our needs
+- Django's default logging: Tightly coupled to Django, not reusable
+
+### Environment-Specific Configuration
+
+#### Local Development
+- **Format**: Colorized console output with human-readable formatting
+- **Level**: `DEBUG` - show all logs for development visibility
+- **Output**: stdout only (no file handlers)
+- **Example format**: `2026-02-01 10:30:45.123 | INFO | core.views:home:42 - User accessed homepage`
+
+#### Staging Environment
+- **Format**: JSON serialized structured logs
+- **Level**: `INFO` - operational logs without debug noise
+- **Output**: stdout (captured by Cloud Run)
+- **Fields**: severity, message, timestamp, module, function, line, request_id
+
+#### Production Environment  
+- **Format**: JSON serialized structured logs
+- **Level**: `WARNING` - errors and important events only
+- **Output**: stdout (captured by Cloud Run)
+- **Fields**: Same as staging plus additional context
+
+### Google Cloud Run Integration
+
+**Decision**: Use **pure Loguru with JSON serialization** (no additional libraries).
+
+**Rationale**:
+- Cloud Run automatically captures stdout/stderr
+- JSON logs are auto-parsed by Google Cloud Logging
+- No need for google-cloud-logging SDK (extra dependency, complexity)
+- Loguru's `serialize=True` provides properly formatted JSON
+- Reduces dependencies and container size
+
+**Configuration**:
+```python
+# Production/Staging
+logger.add(
+    sys.stdout,
+    serialize=True,  # JSON output
+    format="{message}",
+    level="INFO"  # or WARNING for prod
+)
+```
+
+**Cloud Logging Field Mapping**:
+- `severity` → Log level (INFO, WARNING, ERROR, CRITICAL)
+- `message` → Log message text
+- `timestamp` → ISO 8601 timestamp
+- `module`, `function`, `line` → Source code location
+- `request_id` → Request correlation ID (see below)
+
+### Request Correlation IDs
+
+**Decision**: Implement request correlation tracking via middleware.
+
+**Rationale**:
+- Essential for tracing requests across distributed systems
+- Helps debug issues in production by correlating log entries
+- Useful for performance analysis and monitoring
+- Standard practice for microservices and Cloud Run deployments
+
+**Implementation**:
+- Generate UUID4 for each incoming HTTP request
+- Store in thread-local context or contextvars
+- Middleware adds `request_id` to all Loguru log records during request lifecycle
+- Optionally add to response headers (`X-Request-ID`) for client debugging
+
+**Example log entry**:
+```json
+{
+  "severity": "INFO",
+  "message": "User accessed homepage",
+  "timestamp": "2026-02-01T10:30:45.123456Z",
+  "module": "views",
+  "function": "home",
+  "line": 42,
+  "request_id": "a3f9c812-4b5e-4d3a-9c1f-8e2d6f4a1b9c"
+}
+```
+
+### Test Logging Behavior
+
+**Decision**: Capture logs during tests, display only on test failure.
+
+**Rationale**:
+- Keeps test output clean during successful runs
+- Preserves debugging information when tests fail
+- Standard pytest best practice
+- Uses pytest's `caplog` fixture with Loguru interception
+
+**Implementation**:
+- Configure Loguru in `conftest.py` to propagate to stdlib logging
+- Pytest captures via `caplog` fixture automatically
+- Logs shown only when assertions fail or exceptions raised
+
+### Logging Patterns
+
+**Usage guidelines**:
+
+```python
+from loguru import logger
+
+# Standard operations
+logger.info("User {user_id} logged in", user_id=user.id)
+
+# Important milestones
+logger.success("Database migration completed successfully")
+
+# Warnings
+logger.warning("API rate limit approaching: {count}/1000", count=usage)
+
+# Errors with exception context
+try:
+    process_payment(order)
+except PaymentError as e:
+    logger.error("Payment failed for order {order_id}: {error}", 
+                 order_id=order.id, error=str(e))
+    logger.exception(e)  # Includes full traceback
+```
+
+**Prohibited**:
+- ❌ `print()` statements in production code
+- ❌ Django's `logging.getLogger(__name__)`
+- ❌ Writing logs to files in Cloud Run (ephemeral filesystem)
+
+**Management commands**:
+- Use Loguru for logging: `logger.info("Processing...")`
+- Optionally write to `self.stdout` for Django command output
+- Example: [init_data.py](../{{ project_slug_underscore }}/apps/core/management/commands/init_data.py)
+
+### Log Storage & Retention
+
+**Status**: [Decision pending]
+
+**Options to consider**:
+- Google Cloud Logging (native Cloud Run integration)
+- Log aggregation service (Datadog, New Relic, Sentry)
+- Export to BigQuery for long-term analysis
+- Retention policy (30 days? 90 days? 1 year?)
+
+---
+
+## Database
+
+### Choice
+
+**Decision**: PostgreSQL
+
+**Status**: [Configuration details pending]
+
+**Rationale**:
+- Production-ready with excellent Django support
+- JSONB support for flexible schema
+- Strong ecosystem and tooling
+
+**Local Development**:
+- Podman container (port 5432)
+- Database name: [To be defined]
+
+**Production**:
+- [Decision pending] - Options: Google Cloud SQL, managed PostgreSQL, etc.
+
+### Migration Strategy
+
+**Guidelines**:
+- All migrations committed to git
+- Applied in deployment pipeline before app starts
+- Squashing policy: [To be defined]
+
+---
+
+## Container Strategy
+
+### Local Development
+
+**Status**: [To be defined]
+
+**Current approach**:
+- Podman for database only
+- Django runs directly via `task runserver`
+- Rationale: Faster feedback loop, easier debugging
+
+### Production Deployment
+
+**Target**: Google Cloud Run
+
+**Status**: [Container configuration pending]
+
+**Considerations**:
+- Dockerfile configuration
+- Multi-stage builds for optimization
+- Security scanning
+- Image registry (Artifact Registry)
+
+---
+
+## CI/CD Pipeline
+
+**Status**: [To be defined]
+
+**Pipeline stages to consider**:
+- Linting (Ruff + Ty)
+- Testing (pytest with coverage)
+- Security scanning
+- Container build
+- Deployment to Cloud Run
+
+**Deployment process**:
+- [To be defined]
+
+---
+
+## Secrets Management
+
+**Status**: [To be defined]
+
+**Options to consider**:
+- Google Secret Manager
+- Environment variables in Cloud Run
+- .env files (local only, never commit)
+
+---
+
+## Monitoring & Observability
+
+**Status**: [To be defined]
+
+**Areas to address**:
+- Application Performance Monitoring (APM)
+- Error tracking (Sentry?)
+- Uptime monitoring
+- Metrics and dashboards
+
+````
