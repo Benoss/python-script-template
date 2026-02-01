@@ -1,4 +1,4 @@
-{% if project_type == "script" %}
+{%- if project_type == "script" %}
 """Example tests demonstrating fixture usage and testing patterns.
 
 These tests show common patterns for API integration and data processing POCs.
@@ -123,7 +123,6 @@ def test_example_slow_operation(sample_json_data: dict[str, Any]) -> None:
 
 These tests show common patterns for testing Django views, models, and functionality.
 """
-
 from pathlib import Path
 
 import pytest
@@ -182,5 +181,5 @@ def test_fixtures_directory_exists(fixtures_dir: Path) -> None:
     assert fixtures_dir.exists()
     assert fixtures_dir.is_dir()
     assert fixtures_dir.name == "fixtures"
-{% endif %}
+{%- endif %}
 

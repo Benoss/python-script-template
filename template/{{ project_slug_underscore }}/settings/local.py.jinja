@@ -5,14 +5,13 @@ from .base import *  # noqa: F403 - Django settings pattern
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']  # noqa: S104 - Dev environment only
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0"]  # noqa: S104 - Dev environment only
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 DATABASES = {
-    'default': env.db(  # noqa: F405 - Imported from .base
-        'DATABASE_URL',
-        default='postgresql://{{ project_slug_underscore }}_user:{{ project_slug_underscore }}_password@localhost:5432/{{ project_slug_underscore }}_db'
+    "default": env.db(
+        "DATABASE_URL", default="postgresql://{{ project_slug_underscore }}_user:{{ project_slug_underscore }}_password@localhost:5432/{{ project_slug_underscore }}_db"
     )
 }
 
