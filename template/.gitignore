@@ -186,3 +186,6 @@ tmp/*
 
 
 node_modules/
+
+# Podman data
+podman_data/

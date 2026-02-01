@@ -107,17 +107,34 @@ tasks:
   db-up:
     desc: Start PostgreSQL database in Podman
     cmds:
-      - podman-compose up -d
+      - mkdir -p podman_data/postgresql
+      - |
+        podman run -d \
+          --name {{ project_slug_underscore }}_db \
+          --replace \
+          -e POSTGRES_DB={{ project_slug_underscore }}_db \
+          -e POSTGRES_USER={{ project_slug_underscore }}_user \
+          -e POSTGRES_PASSWORD={{ project_slug_underscore }}_password \
+          -p 5432:5432 \
+          -v "$(pwd)/podman_data/postgresql:/var/lib/postgresql/data:Z" \
+          docker.io/library/postgres:16-alpine
+      - echo "Waiting for PostgreSQL to be ready..."
+      - |
+        until podman exec {{ project_slug_underscore }}_db pg_isready -U {{ project_slug_underscore }}_user -d {{ project_slug_underscore }}_db > /dev/null 2>&1; do
+          sleep 1
+        done
+      - echo "PostgreSQL is ready!"
 
   db-down:
     desc: Stop PostgreSQL database
     cmds:
-      - podman-compose down
+      - podman stop {{ project_slug_underscore }}_db || true
+      - podman rm {{ project_slug_underscore }}_db || true
 
   db-logs:
     desc: View database logs
     cmds:
-      - podman-compose logs -f db
+      - podman logs -f {{ project_slug_underscore }}_db
 
   tailwind-watch:
     desc: Watch and compile Tailwind CSS for development

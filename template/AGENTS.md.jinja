@@ -9,7 +9,7 @@ This is a Django web application built with modern tooling and best practices.
 {% endif %}
 Code quality is enforced using [Ruff](https://docs.astral.sh/ruff/) for linting and formating and [Ty](https://github.com/astral-sh/ruff/tree/main/crates/ty) for type checking.
 
-**Editor Setup**: VS Code is configured to use Ty's language server for real-time type checking (not Pylance). Type errors will appear as you type, matching exactly what `mise run lint` checks in CI.
+**Editor Setup**: VS Code is configured to use Ty's language server for real-time type checking (not Pylance). Type errors will appear as you type, matching exactly what `task lint` checks in CI.
 
 ## General Tone
 
@@ -120,7 +120,7 @@ Code quality is enforced using [Ruff](https://docs.astral.sh/ruff/) for linting 
 - Use Function-Based Views (FBVs) for complex logic or simple endpoints
 - Always name URL patterns: `path('', HomeView.as_view(), name='home')`
 - Use app namespaces: `app_name = 'core'` in `urls.py`
-- Reverse URLs in templates: `{% url 'core:home' %}`
+- Reverse URLs in templates: `{% raw %}{% url 'core:home' %}{% endraw %}`
 
 ### 3. Templates & Frontend
 
@@ -136,8 +136,8 @@ Code quality is enforced using [Ruff](https://docs.astral.sh/ruff/) for linting 
   - Build for production: `task tailwind-build`
   - Follow Tailwind conventions (mobile-first, utility classes)
   - Extract repeated patterns into django-cotton components
-- Keep templates DRY - use `{% extends "base.html" %}` and blocks
-- Use template tags: `{% load static %}`, `{% load cotton %}`
+- Keep templates DRY - use `{% raw %}{% extends "base.html" %}{% endraw %}` and blocks
+- Use template tags: `{% raw %}{% load static %}{% endraw %}`, `{% raw %}{% load cotton %}{% endraw %}`
 
 ### 4. APIs (When Needed)
 
@@ -194,12 +194,12 @@ Code quality is enforced using [Ruff](https://docs.astral.sh/ruff/) for linting 
 ## Linting Commands
 
 {% if project_type == "script" %}
-Run these commands via mise:
-- mise run lint
+Run these commands via Task:
+- `task lint` - Run all linting tools (Ruff + Ty)
 - Or individually:
-  - uv run ruff check --fix .
-  - uv run ruff format .
-  - uv run ty check .
+  - `uv run ruff check --fix .` - Fix linting issues
+  - `uv run ruff format .` - Format code
+  - `uv run ty check .` - Type checking
 {% elif project_type == "django" %}
 Run linting with Task:
 - `task lint` - Run all linting tools (Ruff + Ty)

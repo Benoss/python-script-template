@@ -105,7 +105,7 @@ addopts = [
     "-v",
     "--strict-markers",
 {% if project_type == "script" %}
-    "--cov={{ project_slug_underscore }}",
+    "--cov=.",
 {% elif project_type == "django" %}
     "--cov={{ project_slug_underscore }}",
     "--reuse-db",
@@ -121,7 +121,11 @@ python_files = ["tests.py", "test_*.py", "*_tests.py"]
 
 [tool.coverage.run]
 branch = true
+{% if project_type == "script" %}
+source = ["."]
+{% elif project_type == "django" %}
 source = ["{{ project_slug_underscore }}"]
+{% endif %}
 
 [tool.coverage.report]
 exclude_lines = [

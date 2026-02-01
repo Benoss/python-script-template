@@ -1,25 +1,24 @@
 {% if project_type == "script" %}
 ### Quickstart for {{ project_name }}
 
-- Install [mise](https://mise.jdx.dev/getting-started.html)
+- Install [Task](https://taskfile.dev/installation/)
 - Initialize git if not done yet
   - `git init`
 
-- Install Python, tools, and dependencies using mise
-  - `mise install`  # Installs Python and activates environment
-  - `mise run install_deps`  # Installs dev dependencies
+- Install Python and dependencies
+  - `task setup`  # Installs dependencies using UV
 
-- Lint the project using mise tasks
-  - `mise run dev`
+- Lint the project
+  - `task lint`
 
 - Run the project
-  - `mise exec -- python main_{{ project_slug_underscore }}.py`
+  - `task run`
 
 ### VS Code Setup
 
 The project includes VS Code configuration for optimal Python development:
 
-- **Interpreter**: Auto-detects `.venv/bin/python` created by mise
+- **Interpreter**: Auto-detects `.venv/bin/python` created by UV
 - **Type checking**: Uses [Ty LSP](https://github.com/astral-sh/ruff/tree/main/crates/ty) for real-time type checking
 - **Formatting/Linting**: Uses [Ruff](https://docs.astral.sh/ruff/) with auto-fix on save
 - **Extensions**: Recommended extensions will be suggested on first open
@@ -62,13 +61,13 @@ A Django project built with modern tooling and best practices.
 3. **Podman** - Container runtime (Docker alternative)
    ```bash
    # Ubuntu/Debian
-   sudo apt install podman podman-compose
+   sudo apt install podman
    
    # Fedora
-   sudo dnf install podman podman-compose
+   sudo dnf install podman
    
    # macOS
-   brew install podman podman-compose
+   brew install podman
    ```
 
 4. **Bun** - For running Tailwind CSS (no Node.js needed)
@@ -167,13 +166,15 @@ Run `task --list` to see all available tasks:
 │   └── css/                                # CSS files
 │       ├── input.css                       # Tailwind input
 │       └── output.css                      # Compiled CSS (generated)
+├── fixtures/                               # Test fixtures and sample data
+│   ├── sample_api_response.json            # Example JSON fixture
+│   └── sample_data.csv                     # Example CSV fixture
 ├── tests/                                  # Project-wide tests
 ├── manage.py                               # Django management script
 ├── pyproject.toml                          # Python dependencies
 ├── Taskfile.yml                            # Task definitions
 ├── tailwind.config.js                      # Tailwind configuration (legacy, not needed in v4.1)
-├── package.json                            # Project info (not used with bunx)
-└── docker-compose.yml                      # PostgreSQL container setup
+└── package.json                            # Project info (not used with bunx)
 ```
 
 ## Development Workflow

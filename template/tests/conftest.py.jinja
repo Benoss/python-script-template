@@ -191,16 +191,16 @@ def authenticated_client(client, test_user):
     return client
 
 
-@pytest.fixture
-def api_client():
-    """Provide a Django REST framework APIClient (if using DRF).
-
-    Use this for testing API endpoints.
-    Note: Requires djangorestframework to be installed.
-
-    """
-    from rest_framework.test import APIClient
-    return APIClient()
+# Removed api_client fixture - Django REST Framework not included by default.
+# This project recommends Django Ninja for APIs.
+# If you need DRF, install it with: uv add djangorestframework
+# Then uncomment this fixture:
+#
+# @pytest.fixture
+# def api_client():
+#     """Provide a Django REST framework APIClient (if using DRF)."""
+#     from rest_framework.test import APIClient
+#     return APIClient()
 
 
 @pytest.fixture
