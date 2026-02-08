@@ -14,9 +14,7 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.test import Client
 
-from apps.core.models import User
-
-User: User = get_user_model()
+User: Any = get_user_model()
 {%- endif %}
 
 {%- if project_type == "script" %}
@@ -181,7 +179,7 @@ def admin_user(db: Any) -> Any:
 
 
 @pytest.fixture
-def authenticated_client(client: Client, test_user: User) -> Client:
+def authenticated_client(client: Client, test_user: Any) -> Client:
     """Provide a Django test client with authenticated user.
 
     Use this for testing views that require authentication without
