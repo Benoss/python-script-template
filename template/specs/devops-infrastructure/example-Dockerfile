@@ -1,0 +1,79 @@
+# syntax=docker/dockerfile:1
+# ^ CRITICAL: Enables BuildKit features like --mount=type=cache
+
+# ==========================================
+# 1. Base Stage
+# Shared foundation for both Dev and Prod
+# ==========================================
+FROM python:3.14-slim AS base
+
+# Install uv by copying the binary from the official distroless image.
+# This is cleaner and safer than curling a script.
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# Set Environment Variables
+# UV_COMPILE_BYTECODE=1: Compiles .py to .pyc during build (faster startup)
+# UV_LINK_MODE=copy:     Required for Docker cache mounts (hardlinks fail across mounts)
+# PYTHONUNBUFFERED=1:    Ensures logs stream immediately to container stdout
+# PATH:                  We add the virtualenv to PATH so we don't need to type "uv run"
+ENV UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    PYTHONUNBUFFERED=1 \
+    PATH="/app/.venv/bin:$PATH"
+
+WORKDIR /app
+
+# Copy dependency definitions first.
+# Docker will cache this layer until these specific files change.
+COPY uv.lock pyproject.toml ./
+
+# ==========================================
+# 2. Development & Testing Stage (Target: dev)
+# Includes dev-dependencies (pytest, ruff, etc.)
+# ==========================================
+FROM base AS dev
+
+# Install ALL dependencies (including dev groups).
+# --frozen: Error if lockfile is out of sync with pyproject.toml
+# --no-install-project: Install libraries only, not the app code yet (caches better)
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --dev --no-install-project
+
+# Copy the rest of the source code
+COPY . .
+
+# Final sync to install the project itself (editable mode usually not needed in container)
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --dev
+
+# Default command for the dev container (can be overridden)
+CMD ["python", "main.py"]
+
+# ==========================================
+# 3. Production Stage (Target: prod)
+# Minimal, Secure, No Dev-Deps
+# ==========================================
+FROM base AS prod
+
+# Install ONLY production dependencies.
+# This keeps the image small and reduces attack surface.
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev --no-install-project
+
+# Copy application code
+COPY . .
+
+# Final sync to install the application package
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev
+
+# SECURITY: Create a non-root user.
+# Using a fixed UID (10001) helps with Podman user-mapping stability.
+RUN groupadd -g 10001 appuser && \
+    useradd -u 10001 -g appuser -s /bin/false -m appuser
+
+# Switch to non-root user
+USER appuser
+
+# Launch application
+CMD ["python", "main.py"]

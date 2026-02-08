@@ -45,9 +45,34 @@ tasks:
       - uv run ty check .
 
   dev:
-    desc: Run one-shot linting (same as lint task)
+    desc: Start full development environment
     cmds:
+      - task: db-up
+      - task: migrate
+      - task: check-migrations
+      - task: init-data
       - task: lint
+      - task: test
+      - echo "Starting Tailwind watch and Django server..."
+      - echo "Press Ctrl+C to stop all services"
+      - |
+        # Run tailwind-watch and runserver in parallel
+        trap 'kill 0' EXIT
+        task tailwind-watch &
+        task runserver &
+        wait
+
+  dev-init:
+    desc: Initialize development environment from scratch
+    cmds:
+      - task: db-up
+      - task: makemigrations
+      - task: migrate
+      - task: init-data
+      - task: tailwind-build
+      - uv run manage.py collectstatic
+      - echo "Development environment initialized! Run 'task dev' to start."
+
 
   dev-watch:
     desc: Run linting in watch mode (continuous)
@@ -88,6 +113,13 @@ tasks:
     desc: Create new database migrations
     cmds:
       - uv run python manage.py makemigrations
+
+  check-migrations:
+    desc: Check for unapplied migrations or model changes
+    cmds:
+      - uv run python manage.py makemigrations --check --dry-run
+      - uv run python manage.py migrate --check
+
 
   shell:
     desc: Start Django shell
@@ -164,5 +196,5 @@ tasks:
             exit 1
           fi
         fi
-        bunx @tailwindcss/cli@latest -i ./static/css/input.css -o ./static/css/output.css --minify
+        bunx @tailwindcss/cli@latest -i ./static/css/input.css -o ./static/css/output.css
 {% endif %}

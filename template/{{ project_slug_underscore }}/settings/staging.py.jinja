@@ -1,6 +1,10 @@
 {%- if project_type == "django" -%}
 """Staging environment settings for {{ project_name }}."""
 
+import sys
+
+from loguru import logger
+
 from .base import *  # noqa: F403 - Django settings pattern
 
 DEBUG = env.bool("DEBUG", default=False)
@@ -26,25 +30,17 @@ EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
 EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
 
-# Logging
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-        },
-    },
-    "root": {
-        "handlers": ["console"],
-        "level": "WARNING",
-    },
-    "loggers": {
-        "django": {
-            "handlers": ["console"],
-            "level": "INFO",
-            "propagate": False,
-        },
-    },
-}
+# =====================================
+# Loguru Configuration - Staging Environment
+# =====================================
+# JSON serialized logs for Cloud Run
+logger.remove()
+logger.add(
+    sys.stdout,
+    serialize=True,  # JSON output for Cloud Logging
+    format="{message}",
+    level="INFO",
+)
+
+logger.info("Staging environment settings loaded")
 {%- endif %}

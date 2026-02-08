@@ -19,11 +19,20 @@ Code quality is enforced using [Ruff](https://docs.astral.sh/ruff/) for linting 
 - Avoid hyperbole and excitement, stick to the task at hand and complete it pragmatically.
 - Avoid words like seamless, captivating
 
+## Workflow Rules
+
+- **ALWAYS run `task lint` before telling me that work is finished**
+  - This is mandatory for every feature, bugfix, or code change
+  - Fix all linting errors or the CI/CD will fail
+
+- Run `task test` to verify all tests pass after code changes
+- Update documentation when adding new features or changing behavior
+
 ## Best Practices
 
 ### 1. Code Style & Linting
 
-- **Always run Ruff and Ty before committing code.**
+- **Always run `task lint` before completing any work** - This is mandatory
 - Follow [PEP8](https://peps.python.org/pep-0008/) style guidelines.
 - Use type hints everywhere.
 - Sometimes you will have to use type: ignore always ask before adding those
@@ -38,7 +47,7 @@ Code quality is enforced using [Ruff](https://docs.astral.sh/ruff/) for linting 
 - If in need of a http client prefer httpx over requests
 - Always ask first before adding 3rd party libraries and provide choices if there are multiple candidates
 - Prefer small, composable functions over large monolithic scripts. But do not create too many functions
-
+- If you need to run a python file use uv run myfile.py this will ensure that it is using the correct virtualenv
 
 ### 2. Project Structure
 
@@ -51,7 +60,7 @@ Code quality is enforced using [Ruff](https://docs.astral.sh/ruff/) for linting 
 - **Apps Organization**: All Django apps MUST be placed in the `{{ project_slug_underscore }}/apps/` directory
   - Example: `{{ project_slug_underscore }}/apps/core/`, `{{ project_slug_underscore }}/apps/users/`
   - Each app should have a clear, single responsibility
-  - Use `python manage.py startapp app_name {{ project_slug_underscore }}/apps/app_name` to create new apps
+  - Use `uv run manage.py startapp app_name {{ project_slug_underscore }}/apps/app_name` to create new apps
 - **Settings Split**: Use environment-specific settings files in `{{ project_slug_underscore }}/settings/`
   - `base.py` - Shared settings
   - `local.py` - Development (default)
@@ -69,9 +78,10 @@ Code quality is enforced using [Ruff](https://docs.astral.sh/ruff/) for linting 
   - App-specific templates can go in app's `templates/` folder
 - **Technical Decisions**: Document architectural decisions in `specs/` directory
   - Root `specs/` for cross-cutting concerns (devops-infrastructure.md, etc.)
-  - App-specific specs in `{{ project_slug_underscore }}/apps/<app_name>/specs/`
+  - **Each Django app should have their own specfile. called app-{appslug}.md**
   - Check existing specs before making architectural decisions
-  - Update specs when decisions change or evolve
+  - **Update specs when decisions change or evolve**
+  - When doing diagrams always use Mermaid
   - See [specs/README.md](specs/README.md) for guidelines
 {% endif %}
 
@@ -155,7 +165,6 @@ Code quality is enforced using [Ruff](https://docs.astral.sh/ruff/) for linting 
   - Better type hints support
   - Install: `uv add django-ninja`
   - Mention this preference but don't install by default
-- If using DRF, follow their best practices for serializers and viewsets
 
 ### 5. Admin Panel
 

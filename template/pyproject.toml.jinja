@@ -9,7 +9,7 @@ dependencies = [
     "loguru",
     "python-dotenv",
 {% elif project_type == "django" %}
-    "django>=5.0",
+    "django>=6.0",
     "psycopg[binary]",
     "django-cotton",
     "django-environ",
@@ -27,9 +27,12 @@ dev = [
     "ty",
 {% if project_type == "django" %}
     "pytest-django",
-    "django-extensions",
     "factory-boy",
+    "django-stubs>=5.2.9",
 {% endif %}
+
+[tool.django-stubs]
+django_settings_module = "django_starter.settings.local"
 ]
 
 
@@ -119,11 +122,17 @@ ignore = [
 ]
 {% if project_type == "django" %}
 # Django app tests.py files also use pytest patterns
-"*/apps/*/tests.py" = ["S101", "PLR2004"]
+"*/apps/*/tests.py" = ["S101", "PLR2004", "PGH003"]
+# Django admin files use standard patterns that trigger ClassVar warnings
+"*/apps/*/admin.py" = ["RUF012"]
+# Django migrations are auto-generated
+"*/migrations/*.py" = ["D101", "RUF012"]
+# Django models Meta classes use standard patterns
+"*/apps/*/models.py" = ["RUF012", "D105"]
 # Settings files use star imports by Django convention
 "*/settings/*.py" = ["F405"]
 # Management commands need specific signatures
-"*/management/commands/*.py" = ["ARG002", "TC003"]
+"*/management/commands/*.py" = ["ARG002", "TC003", "PGH003"]
 {% endif %}
 
 

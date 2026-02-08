@@ -1,4 +1,3 @@
-````markdown
 # Specifications Directory
 
 **Purpose**: Living documentation for technical and business decisions.
@@ -86,12 +85,10 @@ When making architectural decisions:
 - **Reference specs** in PR descriptions to provide context
 - Keep specs **concise and scannable** - developers will read them
 - Prefer **tables and bullet points** over long paragraphs
+- Use mermaid diagrams to illustrate different flows
 
 ## Cross-Referencing
 
-Link between specs using relative paths:
-- From root spec to app spec: `[User authentication](../django_starter/apps/users/specs/authentication.md)`
-- From app spec to root spec: `[Logging setup](../../../../specs/devops-infrastructure.md)`
-- Between app specs: `[Order processing](../../orders/specs/business-rules.md)`
+Link between specs using relative paths, the specs/ folder at the root of the project
 
-````
+

@@ -1,6 +1,10 @@
 {%- if project_type == "django" -%}
 """Local development settings for {{ project_name }}."""
 
+import sys
+
+from loguru import logger
+
 from .base import *  # noqa: F403 - Django settings pattern
 
 DEBUG = True
@@ -23,25 +27,17 @@ if DEBUG:
 # Email backend for development
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-# Logging
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-        },
-    },
-    "root": {
-        "handlers": ["console"],
-        "level": "INFO",
-    },
-    "loggers": {
-        "django": {
-            "handlers": ["console"],
-            "level": "INFO",
-            "propagate": False,
-        },
-    },
-}
+# =====================================
+# Loguru Configuration - Local Development
+# =====================================
+# Reconfigure for DEBUG level in local environment
+logger.remove()
+logger.add(
+    sys.stderr,
+    format="<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
+    level="DEBUG",
+    colorize=True,
+)
+
+logger.info("Local development settings loaded (DEBUG mode enabled)")
 {%- endif %}

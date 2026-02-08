@@ -1,0 +1,159 @@
+name: Podman CI/CD Pipeline
+
+on:
+  pull_request:
+    branches: [ "main", "prod" ] # Runs on features (to main) and hotfixes (to prod)
+  push:
+    branches: [ "main", "prod" ] # Runs on merge to Staging and Production
+
+env:
+  GHCR_REGISTRY: ghcr.io
+  GAR_REGISTRY: us-central1-docker.pkg.dev
+  GAR_IMAGE_PATH: my-gcp-project/my-repo/my-app
+  IMAGE_NAME: ${{ github.repository }}
+
+# Prevent race conditions when two hotfixes merge to prod simultaneously
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  # ========================================================
+  # JOB 1: TEST & BUILD (Ephemeral)
+  # Trigger: Any Pull Request (Feature or Hotfix)
+  # Output: Image in GHCR
+  # ========================================================
+  build-test:
+    if: github.event_name == 'pull_request'
+    runs-on: self-hosted
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Test Image (Target: dev)
+        run: |
+          podman build \
+            --target dev \
+            --tag dev-image:${{ github.sha }} \
+            --file Dockerfile .
+
+      - name: Run Tests
+        run: podman run --rm dev-image:${{ github.sha }} pytest
+
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | podman login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Push to GHCR (Debug Artifact)
+        run: |
+          # Sanitize image name
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/my-app
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          TAG=pr-${{ github.event.number }}
+          
+          podman tag dev-image:${{ github.sha }} $IMAGE_ID:$TAG
+          podman push $IMAGE_ID:$TAG
+
+  # ========================================================
+  # JOB 2: DEPLOY STAGING
+  # Trigger: Push to Main
+  # Output: Image in GAR (staging-sha)
+  # ========================================================
+  deploy-staging:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to GAR
+        run: |
+          echo '${{ secrets.GCP_SA_KEY }}' > gcp-key.json
+          cat gcp-key.json | podman login -u _json_key --password-stdin https://${{ env.GAR_REGISTRY }}
+          rm gcp-key.json
+
+      - name: Build & Push Staging
+        run: |
+          FULL_IMAGE_PATH="${{ env.GAR_REGISTRY }}/${{ env.GAR_IMAGE_PATH }}:staging-${{ github.sha }}"
+          
+          podman build --target prod --tag $FULL_IMAGE_PATH .
+          podman push $FULL_IMAGE_PATH
+
+  # ========================================================
+  # JOB 3: DEPLOY PRODUCTION
+  # Trigger: Push to Prod (Release Merge or Hotfix Merge)
+  # Output: Image in GAR (vYY.MM.DD.i) + GitHub Release
+  # ========================================================
+  deploy-prod:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/prod'
+    runs-on: self-hosted
+    permissions:
+      contents: write # Required to create Releases/Tags
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required to fetch tags for the script
+
+      # ----------------------------------------------------
+      # Custom CalVer Generation Script (Shell)
+      # ----------------------------------------------------
+      - name: Generate CalVer Tag
+        id: calver
+        run: |
+          # 1. Get today's date prefix (e.g., 26.02.03)
+          TODAY=$(date +'%y.%m.%d')
+          echo "Checking tags for v$TODAY..."
+
+          # 2. Find the highest existing tag for today
+          # --sort=-v:refname ensures v26.02.03.10 comes before v26.02.03.9
+          LAST_TAG=$(git tag --list "v$TODAY.*" --sort=-v:refname | head -n 1)
+          
+          if [ -z "$LAST_TAG" ]; then
+            # No tags today, start at .1
+            NEW_TAG="v$TODAY.1"
+            echo "No existing tags for today. Starting sequence."
+          else
+            # Extract suffix (everything after the last dot) and increment
+            LAST_COUNT=${LAST_TAG##*.}
+            NEW_COUNT=$((LAST_COUNT + 1))
+            NEW_TAG="v$TODAY.$NEW_COUNT"
+            echo "Found existing tag $LAST_TAG. Incrementing to .$NEW_COUNT"
+          fi
+
+          echo "Calculated Target Tag: $NEW_TAG"
+          echo "tag=$NEW_TAG" >> $GITHUB_OUTPUT
+
+      # ----------------------------------------------------
+      # Build & Push Release Image
+      # ----------------------------------------------------
+      - name: Login to GAR
+        run: |
+          echo '${{ secrets.GCP_SA_KEY }}' > gcp-key.json
+          cat gcp-key.json | podman login -u _json_key --password-stdin https://${{ env.GAR_REGISTRY }}
+          rm gcp-key.json
+
+      - name: Build & Push Production
+        run: |
+          TAG="${{ steps.calver.outputs.tag }}"
+          FULL_IMAGE_PATH="${{ env.GAR_REGISTRY }}/${{ env.GAR_IMAGE_PATH }}:$TAG"
+          LATEST_PATH="${{ env.GAR_REGISTRY }}/${{ env.GAR_IMAGE_PATH }}:latest"
+          
+          # Build once, tag twice (Specific Version + Latest)
+          podman build --target prod --tag $FULL_IMAGE_PATH .
+          podman tag $FULL_IMAGE_PATH $LATEST_PATH
+          
+          podman push $FULL_IMAGE_PATH
+          podman push $LATEST_PATH
+
+      # ----------------------------------------------------
+      # Create GitHub Release
+      # ----------------------------------------------------
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.calver.outputs.tag }}
+          name: Release ${{ steps.calver.outputs.tag }}
+          generateReleaseNotes: true
+          makeLatest: true

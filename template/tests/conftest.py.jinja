@@ -195,20 +195,6 @@ def authenticated_client(client: Client, test_user: User) -> Client:
     return client
 
 
-# Remove the DRF api_client fixture by default. If you need DRF, install it with: uv add djangorestframework
-# and add an api_client fixture that returns an APIClient instance.
-
-
-# If you need DRF, install it with: uv add djangorestframework
-# Then uncomment this fixture:
-#
-# @pytest.fixture
-# def api_client():
-#     """Provide a Django REST framework APIClient (if using DRF)."""  # noqa: ERA001
-#     from rest_framework.test import APIClient  # noqa: ERA001
-#     return APIClient()  # noqa: ERA001
-
-
 @pytest.fixture
 def fixtures_dir() -> Path:
     """Provide path to the fixtures directory for loading test data files.
