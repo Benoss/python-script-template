@@ -2,9 +2,9 @@ name: Podman CI/CD Pipeline
 
 on:
   pull_request:
-    branches: [ "main", "prod" ] # Runs on features (to main) and hotfixes (to prod)
+    branches: ["main", "prod"] # Runs on features (to main) and hotfixes (to prod)
   push:
-    branches: [ "main", "prod" ] # Runs on merge to Staging and Production
+    branches: ["main", "prod"] # Runs on merge to Staging and Production
 
 env:
   GHCR_REGISTRY: ghcr.io
@@ -33,7 +33,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build Test Image (Target: dev)
+      - name: "Build Test Image (Target: dev)"
         run: |
           podman build \
             --target dev \
@@ -52,7 +52,7 @@ jobs:
           IMAGE_ID=ghcr.io/${{ github.repository_owner }}/my-app
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
           TAG=pr-${{ github.event.number }}
-          
+
           podman tag dev-image:${{ github.sha }} $IMAGE_ID:$TAG
           podman push $IMAGE_ID:$TAG
 
@@ -76,7 +76,7 @@ jobs:
       - name: Build & Push Staging
         run: |
           FULL_IMAGE_PATH="${{ env.GAR_REGISTRY }}/${{ env.GAR_IMAGE_PATH }}:staging-${{ github.sha }}"
-          
+
           podman build --target prod --tag $FULL_IMAGE_PATH .
           podman push $FULL_IMAGE_PATH
 
@@ -109,7 +109,7 @@ jobs:
           # 2. Find the highest existing tag for today
           # --sort=-v:refname ensures v26.02.03.10 comes before v26.02.03.9
           LAST_TAG=$(git tag --list "v$TODAY.*" --sort=-v:refname | head -n 1)
-          
+
           if [ -z "$LAST_TAG" ]; then
             # No tags today, start at .1
             NEW_TAG="v$TODAY.1"
@@ -139,11 +139,11 @@ jobs:
           TAG="${{ steps.calver.outputs.tag }}"
           FULL_IMAGE_PATH="${{ env.GAR_REGISTRY }}/${{ env.GAR_IMAGE_PATH }}:$TAG"
           LATEST_PATH="${{ env.GAR_REGISTRY }}/${{ env.GAR_IMAGE_PATH }}:latest"
-          
+
           # Build once, tag twice (Specific Version + Latest)
           podman build --target prod --tag $FULL_IMAGE_PATH .
           podman tag $FULL_IMAGE_PATH $LATEST_PATH
-          
+
           podman push $FULL_IMAGE_PATH
           podman push $LATEST_PATH
 
