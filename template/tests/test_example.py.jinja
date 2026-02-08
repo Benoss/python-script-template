@@ -125,13 +125,14 @@ These tests show common patterns for testing Django views, models, and functiona
 """
 
 from pathlib import Path
+from typing import Any
 
 import pytest
 from django.contrib.auth import get_user_model
 from django.test import Client
 from django.urls import reverse
 
-User = get_user_model()
+User: Any = get_user_model()
 
 
 def test_home_page(client: Client) -> None:
@@ -147,7 +148,7 @@ def test_admin_page_requires_login(client: Client) -> None:
     assert response.status_code == 302  # Redirect to login
 
 
-def test_admin_page_accessible_for_admin(client: Client, admin_user: User) -> None:
+def test_admin_page_accessible_for_admin(client: Client, admin_user: Any) -> None:
     """Test that admin users can access the admin page."""
     client.force_login(admin_user)
     response = client.get("/admin/")
@@ -160,7 +161,7 @@ def test_authenticated_user_access(authenticated_client: Client) -> None:
     assert response.status_code == 200
 
 
-def test_user_creation(test_user: User) -> None:
+def test_user_creation(test_user: Any) -> None:
     """Test that test user is created correctly."""
     assert test_user.username == "testuser"
     assert test_user.email == "testuser@example.com"
@@ -169,7 +170,7 @@ def test_user_creation(test_user: User) -> None:
     assert not test_user.is_superuser
 
 
-def test_admin_user_creation(admin_user: User) -> None:
+def test_admin_user_creation(admin_user: Any) -> None:
     """Test that admin user is created correctly."""
     assert admin_user.username == "admin"
     assert admin_user.is_staff

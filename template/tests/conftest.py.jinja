@@ -14,7 +14,9 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.test import Client
 
-User = get_user_model()
+from apps.core.models import User
+
+User: User = get_user_model()
 {%- endif %}
 
 {%- if project_type == "script" %}
@@ -145,7 +147,7 @@ pytest_plugins = ["pytest_django"]
 
 
 @pytest.fixture
-def test_user(db: Any) -> User:
+def test_user(db: Any) -> Any:
     """Create a test user for authentication testing.
 
     Use this fixture for testing views that require authentication.
@@ -165,7 +167,7 @@ def test_user(db: Any) -> User:
 
 
 @pytest.fixture
-def admin_user(db: Any) -> User:
+def admin_user(db: Any) -> Any:
     """Create an admin user for testing admin functionality.
 
     Use this fixture for testing admin-only views and permissions.

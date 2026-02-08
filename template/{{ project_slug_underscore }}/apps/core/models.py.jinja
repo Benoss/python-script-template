@@ -1,3 +1,8 @@
 {%- if project_type == "django" -%}
-# Create your models here.
+from django.contrib.auth.models import AbstractUser
+
+
+class User(AbstractUser):
+    """Custom user model for the project."""
+
 {% endif %}
