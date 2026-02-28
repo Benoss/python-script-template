@@ -26,7 +26,7 @@ _preserve_symlinks: True
 # Root of the template
 _subdirectory: template
 
-# Exclude files based on project type - exclude output filenames, not.jinja source names  
+# Exclude files based on project type - exclude output filenames, not.jinja source names
 _exclude:
   - "{{ 'manage.py' if project_type == 'script' else '' }}"
   - "{{ 'docker-compose.yml' if project_type == 'script' else '' }}"
