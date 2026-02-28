@@ -28,6 +28,26 @@ Code quality is enforced using [Ruff](https://docs.astral.sh/ruff/) for linting 
 - Run `task test` to verify all tests pass after code changes
 - Update documentation when adding new features or changing behavior
 
+## Specs and Plans
+
+- `spec.md` is the canonical specification for the current behavior of this project.
+- Any code change that affects behavior, CLI, data format, or workflows must update `spec.md` in the same change so it stays in sync with the codebase.
+- Plans must be saved under `plans/` using `NN_shortname.md` naming (for example: `plans/01_hubspot_property_copy_cli.md`).
+- At the end of an implementation, update the active plan file with actual outcomes and final decisions.
+- New plans should be added as Markdown files in `plans/`.
+- When doing code review make sure you compare the spec.md with the plan and the code so that they are consistent
+- If spec.md starts to be too long >1000 lines, offer to break it down in subspecs for each distinct area the project is covering and putting them into a /spec folder referenced by the main spec.md to avoid injecting too much irrelevant context in the agent
+- When planning offer to create fixtures, maybe by capturing real API calls or examples from the online documentation and using them as base or anonymising some data from real files if available
+
+
+## Non functional requirements
+
+- Always keep security in mind, if there is a security risk remediate it or ask the user for calirfication
+- When dealing with network, think of having retries in place for those specific exception. For this you can use the library tenacity
+- When dealing with a long script, try to log as info where it is at. Like processing batch 3/234.
+
+
+
 ## Best Practices
 
 ### 1. Code Style & Linting
@@ -49,6 +69,13 @@ Code quality is enforced using [Ruff](https://docs.astral.sh/ruff/) for linting 
 - Always ask first before adding 3rd party libraries and provide choices if there are multiple candidates
 - Prefer small, composable functions over large monolithic scripts. But do not create too many functions
 - If you need to run a python file use uv run myfile.py this will ensure that it is using the correct virtualenv
+- Never use the os python installed always wrap with UV even for inline scripts during planning
+
+## Planing Mode
+
+- When in planning mode explore multiple options and ask the user when different options are possible
+- When exploring you can execute inline python scripts, always use "uv run python -c" never use the os system python
+- If you need a library not in the current project to execute your snippet you can use "uv run --with {library} -c"
 
 ### 2. Project Structure
 

@@ -1,0 +1,15 @@
+{% with density=density|default:"normal" %}
+<div class="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+    {% if caption %}
+        <div class="border-b px-4 py-3 text-sm font-medium text-gray-700">{{ caption }}</div>
+    {% endif %}
+    <table class="min-w-full text-left text-sm">
+        <thead class="bg-gray-50 text-gray-600">
+            {{ head }}
+        </thead>
+        <tbody class="divide-y divide-gray-200 {% if density == "compact" %}text-xs{% endif %}">
+            {{ body }}
+        </tbody>
+    </table>
+</div>
+{% endwith %}

@@ -1,0 +1,5 @@
+{% with variant=variant|default:"primary" size=size|default:"md" %}
+<button type="{{ type|default:"button" }}" {% if disabled %}disabled{% endif %} class="inline-flex items-center justify-center rounded-md font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 {% if size == "sm" %}px-3 py-1.5 text-sm{% elif size == "lg" %}px-5 py-3 text-base{% else %}px-4 py-2 text-sm{% endif %} {% if variant == "secondary" %}bg-gray-200 text-gray-900 hover:bg-gray-300 focus-visible:outline-gray-300{% elif variant == "ghost" %}bg-transparent text-gray-700 hover:bg-gray-100 focus-visible:outline-gray-300{% elif variant == "danger" %}bg-red-600 text-white hover:bg-red-700 focus-visible:outline-red-600{% else %}bg-blue-600 text-white hover:bg-blue-700 focus-visible:outline-blue-600{% endif %} {% if full %}w-full{% endif %} {% if disabled %}opacity-60 cursor-not-allowed{% endif %}">
+    {{ slot }}
+</button>
+{% endwith %}

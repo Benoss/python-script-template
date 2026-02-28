@@ -1,0 +1,14 @@
+{% with input_id=id|default:name|default:"input" input_type=type|default:"text" %}
+<div class="space-y-1">
+    {% if label %}
+        <label for="{{ input_id }}" class="text-sm font-medium text-gray-700">{{ label }}</label>
+    {% endif %}
+    <input id="{{ input_id }}" name="{{ name|default:input_id }}" type="{{ input_type }}" value="{{ value|default:"" }}" placeholder="{{ placeholder|default:"" }}" class="block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 {% if error %}border-red-500 focus:border-red-500 focus:ring-red-200{% else %}border-gray-300 focus:border-blue-500 focus:ring-blue-200{% endif %}" {% if disabled %}disabled{% endif %}>
+    {% if help_text and not error %}
+        <p class="text-xs text-gray-500">{{ help_text }}</p>
+    {% endif %}
+    {% if error %}
+        <p class="text-xs text-red-600">{{ error }}</p>
+    {% endif %}
+</div>
+{% endwith %}

@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Kitchensink - {{ project_name|default:"My Project" }}{% endblock %}
+
+{% block content %}
+<div class="space-y-12">
+    <header class="space-y-3">
+        <h1 class="text-4xl font-bold text-gray-900">Kitchensink Components</h1>
+        <p class="text-lg text-gray-600">
+            A practical showcase of the core django-cotton components used in this project.
+        </p>
+    </header>
+
+    <section class="space-y-4">
+        <div>
+            <h2 class="text-2xl font-semibold text-gray-900">Button</h2>
+            <p class="text-sm text-gray-600">
+                Use <code class="rounded bg-gray-100 px-2 py-1">variant</code> and <code class="rounded bg-gray-100 px-2 py-1">size</code> to adjust appearance.
+            </p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+            <c-button>Primary</c-button>
+            <c-button variant="secondary">Secondary</c-button>
+            <c-button variant="ghost">Ghost</c-button>
+            <c-button variant="danger">Danger</c-button>
+            <c-button disabled>Disabled</c-button>
+        </div>
+    </section>
+
+    <section class="space-y-4">
+        <div>
+            <h2 class="text-2xl font-semibold text-gray-900">Card</h2>
+            <p class="text-sm text-gray-600">
+                Provide a <code class="rounded bg-gray-100 px-2 py-1">title</code> and optional <code class="rounded bg-gray-100 px-2 py-1">subtitle</code> to structure content.
+            </p>
+        </div>
+        <div class="grid gap-4 md:grid-cols-2">
+            <c-card title="Starter Plan" subtitle="For small teams" footer="Updated 2 hours ago">
+                <p class="text-sm text-gray-600">
+                    Includes basic analytics, daily reports, and shared dashboards.
+                </p>
+                <div class="mt-4">
+                    <c-button size="sm">Choose plan</c-button>
+                </div>
+            </c-card>
+            <c-card title="Growth Plan" subtitle="For scaling products">
+                <p class="text-sm text-gray-600">
+                    Adds advanced permissions, integrations, and dedicated support.
+                </p>
+                <div class="mt-4 flex gap-2">
+                    <c-button size="sm">Upgrade</c-button>
+                    <c-button variant="secondary" size="sm">Compare</c-button>
+                </div>
+            </c-card>
+        </div>
+    </section>
+
+    <section class="space-y-4">
+        <div>
+            <h2 class="text-2xl font-semibold text-gray-900">Badge</h2>
+            <p class="text-sm text-gray-600">
+                Use <code class="rounded bg-gray-100 px-2 py-1">variant</code> to communicate status.
+            </p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+            <c-badge>Neutral</c-badge>
+            <c-badge variant="info">Info</c-badge>
+            <c-badge variant="success">Success</c-badge>
+            <c-badge variant="warning">Warning</c-badge>
+            <c-badge variant="danger">Danger</c-badge>
+        </div>
+    </section>
+
+    <section class="space-y-4">
+        <div>
+            <h2 class="text-2xl font-semibold text-gray-900">Alert</h2>
+            <p class="text-sm text-gray-600">
+                Use <code class="rounded bg-gray-100 px-2 py-1">title</code> and <code class="rounded bg-gray-100 px-2 py-1">variant</code> for emphasis.
+            </p>
+        </div>
+        <div class="space-y-3">
+            <c-alert title="Heads up!">
+                Alerts highlight important contextual updates.
+            </c-alert>
+            <c-alert title="Success" variant="success">
+                Your settings were saved and will take effect immediately.
+            </c-alert>
+            <c-alert title="Warning" variant="warning">
+                Make sure to verify your email address within 24 hours.
+            </c-alert>
+            <c-alert title="Error" variant="danger">
+                Something went wrong. Please try again in a moment.
+            </c-alert>
+        </div>
+    </section>
+
+    <section class="space-y-4">
+        <div>
+            <h2 class="text-2xl font-semibold text-gray-900">Input</h2>
+            <p class="text-sm text-gray-600">
+                Provide <code class="rounded bg-gray-100 px-2 py-1">label</code>, <code class="rounded bg-gray-100 px-2 py-1">help_text</code>, and <code class="rounded bg-gray-100 px-2 py-1">error</code> to guide users.
+            </p>
+        </div>
+        <div class="grid gap-4 md:grid-cols-2">
+            <c-input label="Workspace name" name="workspace" placeholder="Acme Analytics" help_text="Shown on the dashboard" />
+            <c-input label="Email" name="email" placeholder="you@example.com" error="Enter a valid email address" />
+        </div>
+    </section>
+
+    <section class="space-y-4">
+        <div>
+            <h2 class="text-2xl font-semibold text-gray-900">Table</h2>
+            <p class="text-sm text-gray-600">
+                Define the table structure using <code class="rounded bg-gray-100 px-2 py-1">head</code> and <code class="rounded bg-gray-100 px-2 py-1">body</code> slots.
+            </p>
+        </div>
+        <c-table caption="Recent orders">
+            <c-slot name="head">
+                <tr>
+                    <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wide">Order</th>
+                    <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wide">Customer</th>
+                    <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wide">Status</th>
+                    <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wide">Total</th>
+                </tr>
+            </c-slot>
+            <c-slot name="body">
+                <tr>
+                    <td class="px-4 py-3 font-medium text-gray-900">#3482</td>
+                    <td class="px-4 py-3 text-gray-600">Open Road Café</td>
+                    <td class="px-4 py-3"><c-badge variant="success">Paid</c-badge></td>
+                    <td class="px-4 py-3 text-gray-600">$1,240</td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-3 font-medium text-gray-900">#3481</td>
+                    <td class="px-4 py-3 text-gray-600">Northwind Studio</td>
+                    <td class="px-4 py-3"><c-badge variant="warning">Pending</c-badge></td>
+                    <td class="px-4 py-3 text-gray-600">$860</td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-3 font-medium text-gray-900">#3480</td>
+                    <td class="px-4 py-3 text-gray-600">Signal Ridge</td>
+                    <td class="px-4 py-3"><c-badge variant="danger">Failed</c-badge></td>
+                    <td class="px-4 py-3 text-gray-600">$420</td>
+                </tr>
+            </c-slot>
+        </c-table>
+    </section>
+</div>
+{% endblock %}

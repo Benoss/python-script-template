@@ -36,6 +36,7 @@ _exclude:
   - "{{ 'templates' if project_type == 'script' else '' }}"
   - "{{ 'static' if project_type == 'script' else '' }}"
   - "{{ 'specs' if project_type == 'script' else '' }}"
+  - "{{ 'tests/test_kitchensink_page.py' if project_type == 'script' else '' }}"
   - "{{ 'main_' + project_slug_underscore + '.py' if project_type == 'django' else '' }}"
 
 _message_after_copy: |

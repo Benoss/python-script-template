@@ -23,6 +23,10 @@ DATABASES = {
 # Debug toolbar (optional, add to INSTALLED_APPS if needed)
 if DEBUG:
     INSTALLED_APPS += ["django_extensions"]
+    if importlib.util.find_spec("django_extensions"):
+        INSTALLED_APPS += ["django_extensions"]
+    else:
+        logger.warning("django_extensions not installed; skipping.")
 
 # Email backend for development
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
