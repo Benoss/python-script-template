@@ -7,9 +7,9 @@ This project is a modern Python application
 {% elif project_type == "django" %}
 This is a Django web application built with modern tooling and best practices.
 {% endif %}
-Code quality is enforced using [Ruff](https://docs.astral.sh/ruff/) for linting and formating and [Ty](https://github.com/astral-sh/ruff/tree/main/crates/ty) for type checking.
+Code quality is enforced using [Ruff](https://docs.astral.sh/ruff/) for linting and formatting and [Pyrefly](https://pyrefly.org/) for type checking.
 
-**Editor Setup**: VS Code is configured to use Ty's language server for real-time type checking (not Pylance). Type errors will appear as you type, matching exactly what `task lint` checks in CI.
+**Editor Setup**: VS Code is configured to use Pyrefly's language server for real-time type checking. Type errors will appear as you type, matching what `task lint` checks in CI.
 
 ## General Tone
 
@@ -337,18 +337,18 @@ Anything you control
 
 {% if project_type == "script" %}
 Run these commands via Task:
-- `task lint` - Run all linting tools (Ruff + Ty)
+- `task lint` - Run all linting tools (Ruff + Pyrefly)
 - Or individually:
   - `uv run ruff check --fix .` - Fix linting issues
   - `uv run ruff format .` - Format code
-  - `uv run ty check .` - Type checking
+  - `uv run pyrefly check` - Type checking
 {% elif project_type == "django" %}
 Run linting with Task:
-- `task lint` - Run all linting tools (Ruff + Ty)
+- `task lint` - Run all linting tools (Ruff + Pyrefly)
 - Or individually:
   - `uv run ruff check --fix .` - Fix linting issues
   - `uv run ruff format .` - Format code
-  - `uv run ty check .` - Type checking
+  - `uv run pyrefly check` - Type checking
 
 Other useful commands:
 - `task test` - Run all tests
@@ -356,4 +356,3 @@ Other useful commands:
 - `task migrate` - Apply database migrations
 - `task init-data` - Seed database with test data
 {% endif %}
-

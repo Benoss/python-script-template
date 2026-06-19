@@ -20,11 +20,11 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
+    "pyrefly",
     "pytest",
     "pytest-cov",
     "pytest-xdist",
     "ruff",
-    "ty",
 {% if project_type == "django" %}
     "pytest-django",
     "factory-boy",
@@ -146,6 +146,11 @@ quote-style = "double"
 
 
 # --------------------------------------------------------------------------------------------------
+[tool.pyrefly]
+python-version = "3.14"
+
+
+# --------------------------------------------------------------------------------------------------
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = [
@@ -160,6 +165,9 @@ addopts = [
     "--cov-report=html",
     "--cov-report=term-missing",
     "--cov-report=xml",
+]
+markers = [
+    "slow: marks tests as slow",
 ]
 {% if project_type == "django" %}
 DJANGO_SETTINGS_MODULE = "{{ project_slug_underscore }}.settings.local"

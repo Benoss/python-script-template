@@ -1,0 +1,31 @@
+# {{ project_name }} Specification
+
+## Current Behavior
+
+{% if project_type == "script" -%}
+{{ project_name }} is a Python application managed with uv. The application entry point is `main_{{ project_slug_underscore }}.py`, and `task run` executes it with `uv run python main_{{ project_slug_underscore }}.py`.
+{%- elif project_type == "django" -%}
+{{ project_name }} is a Django application managed with uv. The application entry point is `manage.py`, and `task runserver` starts the development server with `uv run python manage.py runserver`.
+{%- endif %}
+
+## Development Workflow
+
+Use `task setup` or `task install` to synchronize the development environment with uv.
+
+Code quality is enforced by `task lint`, which runs Ruff auto-fixing, Ruff formatting, and Pyrefly type checking:
+
+- `uv run ruff check --fix .`
+- `uv run ruff format .`
+- `uv run pyrefly check`
+
+Tests are run with `task test`, which executes `uv run pytest`.
+
+## Type Checking
+
+Pyrefly is the project type checker. Its configuration lives in `pyproject.toml` under `[tool.pyrefly]`, with Python version set to `3.14`.
+
+VS Code uses the Pyrefly extension for editor type checking and Python language services. The workspace sets `python.pyrefly.typeCheckingMode` to `default` so editor diagnostics use the committed Pyrefly configuration rather than the unconfigured basic preset.
+
+## Documentation
+
+Behavioral, CLI, data-format, or workflow changes must update this specification in the same change as the implementation.

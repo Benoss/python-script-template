@@ -168,7 +168,7 @@ The generated `AGENTS.md` contains comprehensive standards that also apply to th
 - ✅ **Type hints everywhere**: All functions must have return type annotations
 - ✅ **Pathlib over open()**: Use `Path.read_text()`, `Path.write_text()` instead of `open()`
 - ✅ **Loguru for logging**: Use `logger.info()`, never `print()` or standard `logging`
-- ✅ **Ruff + Ty**: Linting with Ruff, type checking with Ty (not Pylance)
+- ✅ **Ruff + Pyrefly**: Linting with Ruff, type checking with Pyrefly
 - ✅ **pytest patterns**: Use fixtures with type hints and docstrings
 - ✅ **Max 5 parameters**: Use dataclass/pydantic if more parameters needed
 - ✅ **UV exclusively**: Package manager (pip is blocked in generated projects)
@@ -282,7 +282,7 @@ task clean
 **What the test tasks do**:
 1. Generate a fresh project in `/tmp/copier-test/`
 2. Run `task init` to install dependencies and set up environment
-3. Run `task lint` to verify code quality (Ruff + Ty)
+3. Run `task lint` to verify code quality (Ruff + Pyrefly)
 4. Report any linting errors
 
 **Important**: If `task lint` reports errors in generated projects, those fixes must be ported back to the template files in `template/` directory.
@@ -300,7 +300,7 @@ For more control or debugging:
    ```bash
    cd /tmp/test-project
    task init  # Install dependencies
-   task lint  # Run Ruff + Ty
+   task lint  # Run Ruff + Pyrefly
    task test  # Run pytest
    ```
 4. **Test both types**: Repeat for `project_type=script` and `project_type=django`
@@ -359,7 +359,7 @@ copier update
 # Test generated project follows standards
 cd /tmp/test-project
 task init   # Install dependencies
-task lint   # Ruff + Ty
+task lint   # Ruff + Pyrefly
 task test   # pytest
 ```
 
@@ -392,7 +392,7 @@ Generated projects use:
 
 - **UV**: Package manager (replaces pip, poetry, pipenv)
 - **Ruff**: Linting and formatting (replaces black, isort, flake8, pylint)
-- **Ty**: Type checking (replaces mypy, Pylance)
+- **Pyrefly**: Type checking (replaces mypy, Pylance)
 - **go-task**: Task automation (replaces Make, shell scripts)
 - **pytest**: Testing framework
 - **Tailwind CSS 4.1**: Utility-first CSS via bunx (no Node.js required)

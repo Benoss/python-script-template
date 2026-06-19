@@ -1,6 +1,7 @@
 {%- if project_type == "django" -%}
 """Local development settings for {{ project_name }}."""
 
+import importlib.util
 import sys
 
 from loguru import logger
@@ -22,7 +23,6 @@ DATABASES = {
 
 # Debug toolbar (optional, add to INSTALLED_APPS if needed)
 if DEBUG:
-    INSTALLED_APPS += ["django_extensions"]
     if importlib.util.find_spec("django_extensions"):
         INSTALLED_APPS += ["django_extensions"]
     else:
